@@ -24,21 +24,26 @@ class Car(Agent):
         """
         cord = list(self.pos)
         cordstr = str(cord)
-        sentido = self.model.dicSentido[cordstr]
-        if sentido == "<":
-            nexcord = ((cord[0] - 1), cord[1])
-        elif sentido == ">":
-            nexcord = ((cord[0] + 1), cord[1])
 
-        elif sentido == "v":
-            nexcord = (cord[0], (cord[1] - 1))
+        if cordstr in self.model.dicSentido:
+            sentido = self.model.dicSentido[cordstr]
+            if sentido == "<":
+                nexcord = ((cord[0] - 1), cord[1])
+            elif sentido == ">":
+                nexcord = ((cord[0] + 1), cord[1])
 
-        elif sentido == "^":
-            nexcord = (cord[0], (cord[1] + 1))
+            elif sentido == "v":
+                nexcord = (cord[0], (cord[1] - 1))
 
-        print(f'nexcord raro {nexcord}')
-        print(f'Coordenada anterior {cord}')
-        self.model.grid.move_agent(self, nexcord)
+            elif sentido == "^":
+                nexcord = (cord[0], (cord[1] + 1))
+
+            print(f'nexcord raro {nexcord}')
+            print(f'Coordenada anterior {cord}')
+            self.model.grid.move_agent(self, nexcord)
+        else:
+            print("ESTA EN SEMAFORO")
+
 
     def step(self):
         """

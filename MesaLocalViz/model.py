@@ -72,7 +72,9 @@ class RandomModel(Model):
                 self.grid.place_agent(car, (ran[0], ran[1]))
                 self.schedule.add(car)
 
-        print(self.dicSentido)
+        for i in self.dicSentido:
+            print(i)
+            print(self.dicSentido[i])
         self.num_agents = N
         self.running = True
 
