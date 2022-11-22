@@ -17,6 +17,7 @@ class Car(Agent):
             model: Model reference for the agent
         """
         super().__init__(unique_id, model)
+        self.prevSentido = ""
 
     def move(self):
         """
@@ -24,7 +25,6 @@ class Car(Agent):
         """
         cord = list(self.pos)
         cordstr = str(cord)
-
         if cordstr in self.model.dicSentido:
             sentido = self.model.dicSentido[cordstr]
             if sentido == "<":
@@ -38,12 +38,24 @@ class Car(Agent):
             elif sentido == "^":
                 nexcord = (cord[0], (cord[1] + 1))
 
-            print(f'nexcord raro {nexcord}')
-            print(f'Coordenada anterior {cord}')
-            self.model.grid.move_agent(self, nexcord)
+            # print(f'nexcord raro {nexcord}')
+            # print(f'Coordenada anterior {cord}')
+            self.prevSentido = sentido
+            # print(f'El sentido anterior es {self.prevSentido}')
         else:
-            print("ESTA EN SEMAFORO")
+            # print(f'Seguir hacia  {self.prevSentido}')
+            if self.prevSentido == "<":
+                nexcord = ((cord[0] - 1), cord[1])
+            elif self.prevSentido == ">":
+                nexcord = ((cord[0] + 1), cord[1])
 
+            elif self.prevSentido == "v":
+                nexcord = (cord[0], (cord[1] - 1))
+
+            elif self.prevSentido == "^":
+                nexcord = (cord[0], (cord[1] + 1))
+
+        self.model.grid.move_agent(self, nexcord)
 
     def step(self):
         """

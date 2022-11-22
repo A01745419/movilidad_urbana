@@ -3,7 +3,6 @@ from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from agent import *
 import json
-import random
 
 
 class RandomModel(Model):
