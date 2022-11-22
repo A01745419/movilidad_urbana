@@ -1,6 +1,12 @@
 # movilidad_urbana
 Proyecto de multiagentes con IBM.
 
+# Autores
+José Luis Madrigal Sánchez
+César Emiliano Palome Luna
+Jorge Isidro Blanco Martínez
+Chrsitian Parrish Gutierrez Arrieta
+
 # Licencia MIT
 Copyright (c) [2022] [José Luis Madrigal, César Emiliano Palome, Jorge Isidro Blanco, Christian Parrish Gutierrez]
 
