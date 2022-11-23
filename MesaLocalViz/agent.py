@@ -1,4 +1,5 @@
 from mesa import Agent
+from math import sqrt, pow
 
 
 class Car(Agent):
@@ -21,6 +22,7 @@ class Car(Agent):
         self.tipo = "car"
         self.nexcord = ()
         self.destino = None
+        self.posprev = ()
 
     def move(self):
         """
@@ -34,32 +36,49 @@ class Car(Agent):
 
         for i in possibleSteps:
             cellmates = self.model.grid.get_cell_list_contents(i)
-            print(f'cellmates= {cellmates}')
             for j in cellmates:
-                print(f'j= {j}')
-                if j.tipo != "car" and j.tipo != "edificio":
-                    if j.tipo == "semaforo":
-                        print("Tiene semaforo")
-                        print(f'Estado de semaforo {j.state}\
-                            en coordenadas {j.pos}')
-                        if j.state is False:
-                            self.nexcord = self.pos
+                if j.tipo == "destino" and j.pos == self.destino:
+                    print("Encontraste destino")
+                elif j.tipo != "car" and\
+                        j.tipo != "edificio":
+                    if j.tipo == "semaforo" and j.state is False:
+                        self.nexcord = self.pos
                     else:
                         cord = list(self.pos)
                         cordstr = str(cord)
                         if cordstr in self.model.dicSentido:
-                            
                             sentido = self.model.dicSentido[cordstr]
                             if sentido == "<":
                                 self.nexcord = ((cord[0] - 1), cord[1])
                             elif sentido == ">":
                                 self.nexcord = ((cord[0] + 1), cord[1])
-
                             elif sentido == "v":
                                 self.nexcord = (cord[0], (cord[1] - 1))
                             elif sentido == "^":
                                 self.nexcord = (cord[0], (cord[1] + 1))
+                            elif sentido == "c":
+                                self.nexcord = self.pos  # observar
+                                distanciaActual = 10000000000000000
+                                for k in possibleSteps:
+                                    # usar if par compara con prev pos
+                                    cellmates = self.model.grid.\
+                                        get_cell_list_contents(k)
+                                    for n in cellmates:
+                                        if n.tipo != "car" and \
+                                           n.tipo != "edificio":
+                                            disObjetivo = sqrt(
+                                                pow(self.destino[0] - k[0], 2)
+                                                + pow((self.destino[1]
+                                                       - k[1]), 2))
+                                            print(f'Distancia de {disObjetivo} del punto {k}')
+                                            if distanciaActual > disObjetivo and n.pos != self.prevcord:
+                                                distanciaActual = disObjetivo
+                                                print(f'Distancia nueva de {distanciaActual} del punto {k}')
+                                                self.nexcord = k
+                                            elif n.pos == self.prevcord:
+                                                print("Quiere regresar")
                             self.prevSentido = sentido
+                            self.prevcord = self.pos
                         else:
                             if self.prevSentido == "<":
                                 self.nexcord = ((cord[0] - 1), cord[1])
@@ -77,7 +96,7 @@ class Car(Agent):
         self.move()
 
     def advance(self) -> None:
-        self.model.grid.move_agent(self, self.nexcord)
+            
 
 
 class Traffic_Light(Agent):

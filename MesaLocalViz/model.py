@@ -64,14 +64,14 @@ class RandomModel(Model):
                         self.destino.append([c, self.height - r - 1])
 
             # Generar Carros
-            for i in range(0, 5):
+            for i in range(1):
                 numcar += 1
                 ran = self.random.choice(initCar)
                 car = Car(numcar, self)
                 self.grid.place_agent(car, (ran[0], ran[1]))
                 self.schedule.add(car)
                 car.destino = self.random.choice(self.destino)
-                print(f'Destinos {car.destino}')
+                print(f'Destinos {car.destino} del carro ubicado en {car.pos}')
 
         # for i in self.dicSentido:w
         #     print(i)
