@@ -37,37 +37,38 @@ class Car(Agent):
             print(f'cellmates= {cellmates}')
             for j in cellmates:
                 print(f'j= {j}')
-                if j.tipo == "semaforo":
-                    print("Tiene semaforo")
-                    print(f'Estado de semaforo {j.state}\
-                          en coordenadas {j.pos}')
-                    if j.state is False:
-                        self.nexcord = self.pos
-                else:
-                    cord = list(self.pos)
-                    cordstr = str(cord)
-                    if cordstr in self.model.dicSentido:
-                        sentido = self.model.dicSentido[cordstr]
-                        if sentido == "<":
-                            self.nexcord = ((cord[0] - 1), cord[1])
-                        elif sentido == ">":
-                            self.nexcord = ((cord[0] + 1), cord[1])
-
-                        elif sentido == "v":
-                            self.nexcord = (cord[0], (cord[1] - 1))
-
-                        elif sentido == "^":
-                            self.nexcord = (cord[0], (cord[1] + 1))
-                        self.prevSentido = sentido
+                if j.tipo != "car" and j.tipo != "edificio":
+                    if j.tipo == "semaforo":
+                        print("Tiene semaforo")
+                        print(f'Estado de semaforo {j.state}\
+                            en coordenadas {j.pos}')
+                        if j.state is False:
+                            self.nexcord = self.pos
                     else:
-                        if self.prevSentido == "<":
-                            self.nexcord = ((cord[0] - 1), cord[1])
-                        elif self.prevSentido == ">":
-                            self.nexcord = ((cord[0] + 1), cord[1])
-                        elif self.prevSentido == "v":
-                            self.nexcord = (cord[0], (cord[1] - 1))
-                        elif self.prevSentido == "^":
-                            self.nexcord = (cord[0], (cord[1] + 1))
+                        cord = list(self.pos)
+                        cordstr = str(cord)
+                        if cordstr in self.model.dicSentido:
+                            
+                            sentido = self.model.dicSentido[cordstr]
+                            if sentido == "<":
+                                self.nexcord = ((cord[0] - 1), cord[1])
+                            elif sentido == ">":
+                                self.nexcord = ((cord[0] + 1), cord[1])
+
+                            elif sentido == "v":
+                                self.nexcord = (cord[0], (cord[1] - 1))
+                            elif sentido == "^":
+                                self.nexcord = (cord[0], (cord[1] + 1))
+                            self.prevSentido = sentido
+                        else:
+                            if self.prevSentido == "<":
+                                self.nexcord = ((cord[0] - 1), cord[1])
+                            elif self.prevSentido == ">":
+                                self.nexcord = ((cord[0] + 1), cord[1])
+                            elif self.prevSentido == "v":
+                                self.nexcord = (cord[0], (cord[1] - 1))
+                            elif self.prevSentido == "^":
+                                self.nexcord = (cord[0], (cord[1] + 1))
 
     def step(self):
         """
