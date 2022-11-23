@@ -18,50 +18,65 @@ class Car(Agent):
         """
         super().__init__(unique_id, model)
         self.prevSentido = ""
+        self.tipo = "car"
+        self.nexcord = ()
+        self.destino = None
 
     def move(self):
         """
         Determines if the agent can move in the direction that was chosen
         """
-        cord = list(self.pos)
-        cordstr = str(cord)
-        if cordstr in self.model.dicSentido:
-            sentido = self.model.dicSentido[cordstr]
-            if sentido == "<":
-                nexcord = ((cord[0] - 1), cord[1])
-            elif sentido == ">":
-                nexcord = ((cord[0] + 1), cord[1])
+        possibleSteps = self.model.grid.get_neighborhood(
+            self.pos,
+            moore=False,
+            include_center=False,
+            radius=1)
 
-            elif sentido == "v":
-                nexcord = (cord[0], (cord[1] - 1))
+        for i in possibleSteps:
+            cellmates = self.model.grid.get_cell_list_contents(i)
+            print(f'cellmates= {cellmates}')
+            for j in cellmates:
+                print(f'j= {j}')
+                if j.tipo == "semaforo":
+                    print("Tiene semaforo")
+                    print(f'Estado de semaforo {j.state}\
+                          en coordenadas {j.pos}')
+                    if j.state is False:
+                        self.nexcord = self.pos
+                else:
+                    cord = list(self.pos)
+                    cordstr = str(cord)
+                    if cordstr in self.model.dicSentido:
+                        sentido = self.model.dicSentido[cordstr]
+                        if sentido == "<":
+                            self.nexcord = ((cord[0] - 1), cord[1])
+                        elif sentido == ">":
+                            self.nexcord = ((cord[0] + 1), cord[1])
 
-            elif sentido == "^":
-                nexcord = (cord[0], (cord[1] + 1))
+                        elif sentido == "v":
+                            self.nexcord = (cord[0], (cord[1] - 1))
 
-            # print(f'nexcord raro {nexcord}')
-            # print(f'Coordenada anterior {cord}')
-            self.prevSentido = sentido
-            # print(f'El sentido anterior es {self.prevSentido}')
-        else:
-            # print(f'Seguir hacia  {self.prevSentido}')
-            if self.prevSentido == "<":
-                nexcord = ((cord[0] - 1), cord[1])
-            elif self.prevSentido == ">":
-                nexcord = ((cord[0] + 1), cord[1])
-
-            elif self.prevSentido == "v":
-                nexcord = (cord[0], (cord[1] - 1))
-
-            elif self.prevSentido == "^":
-                nexcord = (cord[0], (cord[1] + 1))
-
-        self.model.grid.move_agent(self, nexcord)
+                        elif sentido == "^":
+                            self.nexcord = (cord[0], (cord[1] + 1))
+                        self.prevSentido = sentido
+                    else:
+                        if self.prevSentido == "<":
+                            self.nexcord = ((cord[0] - 1), cord[1])
+                        elif self.prevSentido == ">":
+                            self.nexcord = ((cord[0] + 1), cord[1])
+                        elif self.prevSentido == "v":
+                            self.nexcord = (cord[0], (cord[1] - 1))
+                        elif self.prevSentido == "^":
+                            self.nexcord = (cord[0], (cord[1] + 1))
 
     def step(self):
         """
         Determines the new direction it will take, and then moves
         """
         self.move()
+
+    def advance(self) -> None:
+        self.model.grid.move_agent(self, self.nexcord)
 
 
 class Traffic_Light(Agent):
@@ -81,6 +96,7 @@ class Traffic_Light(Agent):
         """
         self.state = state
         self.timeToChange = timeToChange
+        self.tipo = "semaforo"
 
     def step(self):
         """
@@ -98,6 +114,7 @@ class Destination(Agent):
     """
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
+        self.tipo = "destino"
 
     def step(self):
         pass
@@ -109,6 +126,7 @@ class Obstacle(Agent):
     """
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
+        self.tipo = "edificio"
 
     def step(self):
         pass
@@ -128,6 +146,7 @@ class Road(Agent):
         """
         super().__init__(unique_id, model)
         self.direction = direction
+        self.tipo = "calle"
 
     def step(self):
         pass

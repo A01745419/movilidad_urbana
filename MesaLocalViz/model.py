@@ -1,5 +1,5 @@
 from mesa import Model
-from mesa.time import RandomActivation
+from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid
 from agent import *
 import json
@@ -26,13 +26,13 @@ class RandomModel(Model):
             self.height = len(lines)
 
             self.grid = MultiGrid(self.width, self.height, torus=False)
-            self.schedule = RandomActivation(self)
+            self.schedule = SimultaneousActivation(self)
 
             # Este for lee el archivo txt para dibujar el mapa
             for r, row in enumerate(lines):
                 for c, col in enumerate(row):
                     # Si el vaor es una calle es porque tiene estas flechas
-                    if col in ["v", "^", ">", "<"]:
+                    if col in ["v", "^", ">", "<", "c"]:
                         # DataDictionary tiene el sentido de la calla
                         agent = Road(f"r_{r*self.width+c}", self,
                                      dataDictionary[col])
@@ -70,10 +70,12 @@ class RandomModel(Model):
                 car = Car(numcar, self)
                 self.grid.place_agent(car, (ran[0], ran[1]))
                 self.schedule.add(car)
+                car.destino = self.random.choice(self.destino)
+                print(f'Destinos {car.destino}')
 
-        for i in self.dicSentido:
-            print(i)
-            print(self.dicSentido[i])
+        # for i in self.dicSentido:w
+        #     print(i)
+        #     print(self.dicSentido[i])
         self.num_agents = N
         self.running = True
 
