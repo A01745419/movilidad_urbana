@@ -64,7 +64,7 @@ class RandomModel(Model):
                         self.destino.append([c, self.height - r - 1])
 
             # Generar Carros
-            for i in range(1):
+            for i in range(5):
                 numcar += 1
                 ran = self.random.choice(initCar)
                 car = Car(numcar, self)

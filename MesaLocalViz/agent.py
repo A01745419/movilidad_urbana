@@ -38,11 +38,30 @@ class Car(Agent):
         cordstr = str(cord)
         for i in possibleSteps:
             cellmates = self.model.grid.get_cell_list_contents(i)
+            # print(cellmates)
+            # print(type(cellmates))
             for j in cellmates:
+                if "car" in cellmates:
+                    print("La lista tiene carro")
                 if j.tipo == "destino" and j.pos == self.destino:
                     print("Encontraste destino")
-                if j.tipo == "semaforo" and j.state is False:
-                    self.nexcord = self.pos
+                elif j.tipo == "semaforo" and j.state is False:
+                    if self.prevSentido == ">":
+                        if self.pos == j.pos or self.pos[0] < j.pos[0]\
+                             and self.pos[1] == j.pos[1]:
+                            self.nexcord = self.pos
+                    elif self.prevSentido == "<":
+                        if self.pos == j.pos or self.pos[0] > j.pos[0]\
+                             and self.pos[1] == j.pos[1]:
+                            self.nexcord = self.pos
+                    elif self.prevSentido == "^":
+                        if self.pos == j.pos or self.pos[1] < j.pos[1]\
+                             and self.pos[0] == j.pos[0]:
+                            self.nexcord = self.pos
+                    elif self.prevSentido == "v":
+                        if self.pos == j.pos or self.pos[1] > j.pos[1]\
+                             and self.pos[0] == j.pos[0]:
+                            self.nexcord = self.pos
                 elif j.tipo == "semaforo" and j.state is True:
                     if self.prevSentido == "<":
                         self.nexcord = ((cord[0] - 1), cord[1])
@@ -52,7 +71,7 @@ class Car(Agent):
                         self.nexcord = (cord[0], (cord[1] - 1))
                     elif self.prevSentido == "^":
                         self.nexcord = (cord[0], (cord[1] + 1))
-                elif j.tipo == "calle":
+                elif j.tipo == "calle" and len(cellmates) == 1:
                     if cordstr in self.model.dicSentido:
                         sentido = self.model.dicSentido[cordstr]
                         self.prevSentido = sentido
@@ -121,7 +140,7 @@ class Car(Agent):
                                                                list(n.pos),
                                                                cord)
                                                 if val:
-                                                    print(sentido2)
+                                                    # print(sentido2)
                                                     distanciaActual =\
                                                         disObjetivo
                                                     Ncord = list(n.pos)
@@ -129,8 +148,13 @@ class Car(Agent):
                                 #     print(f'Coordenada No valida {k}')
                                 #     print(f'sentido {sentido}')
                             self.nexcord = (Ncord[0], Ncord[1])
+                if j.tipo == "car" and j.pos == self.nexcord:
+                    print(f'Encontro carro en la posicion {j.pos} en la casilla a mover el carro {self.pos}')
+                    print(self.nexcord)
+                    self.nexcord == self.prevcord
+                    print(self.nexcord)
         self.prevcord = self.pos
-        print(f'Coordenada antigua {self.prevcord}')
+        print(f'Coordenada antigua {self.prevcord} del carro {self.pos}')
 
     def cambiodecarril(self,
                        CordO: list,
@@ -269,6 +293,10 @@ class Traffic_Light(Agent):
         self.timeToChange = timeToChange
         self.tipo = "semaforo"
 
+    def modificarcolor(self):
+        self.compañero = []
+        self.vecinos = []
+
     def step(self):
         """
         To change the state (green or red) of the traffic light in case
@@ -318,6 +346,7 @@ class Road(Agent):
         super().__init__(unique_id, model)
         self.direction = direction
         self.tipo = "calle"
+        self.usada = False
 
     def step(self):
         pass
