@@ -22,7 +22,8 @@ class Car(Agent):
         self.tipo = "car"
         self.nexcord = ()
         self.destino = None
-        self.posprev = ()
+        self.prevcord = ()
+
 
     def move(self):
         """
@@ -34,60 +35,90 @@ class Car(Agent):
             include_center=False,
             radius=1)
 
+        cord = list(self.pos)
+        cordstr = str(cord)
         for i in possibleSteps:
             cellmates = self.model.grid.get_cell_list_contents(i)
             for j in cellmates:
                 if j.tipo == "destino" and j.pos == self.destino:
                     print("Encontraste destino")
-                elif j.tipo != "car" and\
-                        j.tipo != "edificio":
-                    if j.tipo == "semaforo" and j.state is False:
-                        self.nexcord = self.pos
-                    else:
-                        cord = list(self.pos)
-                        cordstr = str(cord)
-                        if cordstr in self.model.dicSentido:
-                            sentido = self.model.dicSentido[cordstr]
-                            if sentido == "<":
-                                self.nexcord = ((cord[0] - 1), cord[1])
-                            elif sentido == ">":
-                                self.nexcord = ((cord[0] + 1), cord[1])
-                            elif sentido == "v":
-                                self.nexcord = (cord[0], (cord[1] - 1))
-                            elif sentido == "^":
-                                self.nexcord = (cord[0], (cord[1] + 1))
-                            elif sentido == "c":
-                                self.nexcord = self.pos  # observar
-                                distanciaActual = 10000000000000000
-                                for k in possibleSteps:
-                                    # usar if par compara con prev pos
+                if j.tipo == "semaforo" and j.state is False:
+                    self.nexcord = self.pos
+                elif j.tipo == "semaforo" and j.state is True:
+                    if self.prevSentido == "<":
+                        self.nexcord = ((cord[0] - 1), cord[1])
+                    elif self.prevSentido == ">":
+                        self.nexcord = ((cord[0] + 1), cord[1])
+                    elif self.prevSentido == "v":
+                        self.nexcord = (cord[0], (cord[1] - 1))
+                    elif self.prevSentido == "^":
+                        self.nexcord = (cord[0], (cord[1] + 1))
+                elif j.tipo == "calle":
+                    if cordstr in self.model.dicSentido:
+                        sentido = self.model.dicSentido[cordstr]
+                        self.prevSentido = sentido
+                        if sentido == "<":
+                            self.nexcord = ((cord[0] - 1), cord[1])
+                        elif sentido == ">":
+                            self.nexcord = ((cord[0] + 1), cord[1])
+                        elif sentido == "v":
+                            self.nexcord = (cord[0], (cord[1] - 1))
+                        elif sentido == "^":
+                            self.nexcord = (cord[0], (cord[1] + 1))
+                        elif sentido == "c":
+                            distanciaActual = 10000000000000000
+                            for k in possibleSteps:
+                                if k != self.prevcord:  # Evaluo que no sea la posición pasada
                                     cellmates = self.model.grid.\
                                         get_cell_list_contents(k)
                                     for n in cellmates:
-                                        if n.tipo != "car" and \
-                                           n.tipo != "edificio":
+                                        if n.tipo == "calle" or n.tipo == "semaforo":
                                             disObjetivo = sqrt(
                                                 pow(self.destino[0] - k[0], 2)
                                                 + pow((self.destino[1]
-                                                       - k[1]), 2))
-                                            print(f'Distancia de {disObjetivo} del punto {k}')
-                                            if distanciaActual > disObjetivo and n.pos != self.prevcord:
-                                                distanciaActual = disObjetivo
-                                                print(f'Distancia nueva de {distanciaActual} del punto {k}')
-                                                self.nexcord = k
-                                            elif n.pos == self.prevcord:
-                                                print("Quiere regresar")
-                            self.prevSentido = sentido
-                            self.prevcord = self.pos
-                        else:
-                            if self.prevSentido == "<":
-                                self.nexcord = ((cord[0] - 1), cord[1])
-                            elif self.prevSentido == ">":
-                                self.nexcord = ((cord[0] + 1), cord[1])
-                            elif self.prevSentido == "v":
-                                self.nexcord = (cord[0], (cord[1] - 1))
-                            elif self.prevSentido == "^":
-                                self.nexcord = (cord[0], (cord[1] + 1))
+                                                        - k[1]), 2))
+                                            if distanciaActual > disObjetivo:
+                                                sentido2 = self.model.dicSentido[str(list(n.pos))]
+                                                val = self.validarmov(sentido2, list(n.pos), cord)
+                                                if val:
+                                                    print(sentido2)
+                                                    distanciaActual = disObjetivo
+                                                    Ncord = list(n.pos)
+                                # else:
+                                #     print(f'Coordenada No valida {k}')
+                                #     print(f'sentido {sentido}')
+                            self.nexcord = (Ncord[0], Ncord[1])
+        self.prevcord = self.pos
+        print(f'Coordenada antigua {self.prevcord}')
+
+    def validarmov(self, SCasilla: str, Objetivo: list, Origen: list) -> bool:
+        XOrigen = Origen[0]
+        YOrigen = Origen[1]
+        XObjetivo = Objetivo[0]
+        YObjetivo = Objetivo[1]
+        if SCasilla == "<":
+            if XObjetivo < XOrigen:
+                return True
+            else:
+                return False
+        elif SCasilla == ">":
+            if XObjetivo > XOrigen:
+                return True
+            else:
+                return False
+        elif SCasilla == "v":
+            if YOrigen > YObjetivo:
+                return True
+            else:
+                False
+        elif SCasilla == "^":
+            if YOrigen < YObjetivo:
+                return True
+            else:
+                False
+        elif SCasilla == "c":
+            return True
+        return False
 
     def step(self):
         """
@@ -96,7 +127,7 @@ class Car(Agent):
         self.move()
 
     def advance(self) -> None:
-            
+        self.model.grid.move_agent(self, self.nexcord)   
 
 
 class Traffic_Light(Agent):
