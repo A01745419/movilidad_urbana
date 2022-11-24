@@ -23,6 +23,8 @@ class Car(Agent):
         self.nexcord = ()
         self.destino = None
         self.prevcord = ()
+        self.parado = False
+        self.mepuedomover = True
 
     def move(self):
         """
@@ -41,11 +43,10 @@ class Car(Agent):
             # print(cellmates)
             # print(type(cellmates))
             for j in cellmates:
-                if "car" in cellmates:
-                    print("La lista tiene carro")
                 if j.tipo == "destino" and j.pos == self.destino:
                     print("Encontraste destino")
                 elif j.tipo == "semaforo" and j.state is False:
+                    # self.parado = True
                     if self.prevSentido == ">":
                         if self.pos == j.pos or self.pos[0] < j.pos[0]\
                              and self.pos[1] == j.pos[1]:
@@ -63,6 +64,7 @@ class Car(Agent):
                              and self.pos[0] == j.pos[0]:
                             self.nexcord = self.pos
                 elif j.tipo == "semaforo" and j.state is True:
+                    self.parado = False
                     if self.prevSentido == "<":
                         self.nexcord = ((cord[0] - 1), cord[1])
                     elif self.prevSentido == ">":
@@ -71,7 +73,7 @@ class Car(Agent):
                         self.nexcord = (cord[0], (cord[1] - 1))
                     elif self.prevSentido == "^":
                         self.nexcord = (cord[0], (cord[1] + 1))
-                elif j.tipo == "calle" and len(cellmates) == 1:
+                elif j.tipo == "calle":
                     if cordstr in self.model.dicSentido:
                         sentido = self.model.dicSentido[cordstr]
                         self.prevSentido = sentido
@@ -148,13 +150,8 @@ class Car(Agent):
                                 #     print(f'Coordenada No valida {k}')
                                 #     print(f'sentido {sentido}')
                             self.nexcord = (Ncord[0], Ncord[1])
-                if j.tipo == "car" and j.pos == self.nexcord:
-                    print(f'Encontro carro en la posicion {j.pos} en la casilla a mover el carro {self.pos}')
-                    print(self.nexcord)
-                    self.nexcord == self.prevcord
-                    print(self.nexcord)
         self.prevcord = self.pos
-        print(f'Coordenada antigua {self.prevcord} del carro {self.pos}')
+        # print(f'Coordenada antigua {self.prevcord} del carro {self.pos}')
 
     def cambiodecarril(self,
                        CordO: list,
@@ -269,9 +266,79 @@ class Car(Agent):
         Determines the new direction it will take, and then moves
         """
         self.move()
+        '''
+        # contador = 0
+        # agente = [agent for agent in self.model.schedule.agents
+        #           if agent.tipo == "car" and
+        #           agent.unique_id != self.unique_id and
+        #           agent.nexcord == self.nexcord]
+        # print(len(agente))
+        # if len(agente) != 0:
+        #     contador = contador + 1
+        # print(f'contador {contador}')
+
+        #     if agente[0].parado == True:
+        #         self.parado = True
+        #     else:
+        #         if self.unique_id > agente[0].unique_id:
+        #             self.parado = False
+        #         else:
+        #             self.parado = True
+        # for x in agente:
+        #     if x.nexcord == self.nexcord:
+        #         if x.parado:
+        #             # Esta x en un semaforo en rojo
+        #             print("Quieto, el de enfrente esta parado")
+        #             print(f'Prev cod de self {self.prevcord}')
+        #             print(f'Coorde de x {x.pos} y next {x.nexcord}')
+        #             print(self.nexcord)
+        #             print(self.prevcord)
+        #             self.parado = True
+        #         elif not(x.parado):
+        #             print(f'Id de x= {x.unique_id} , pos {x.pos}')
+        #             print(f'id de Self= {self.unique_id}, pos {x.pos}')
+        #             if self.unique_id > x.unique_id:
+        #                 self.parado = False
+        #             else:
+        #                 self.parado = True
+        '''
+        
 
     def advance(self) -> None:
-        self.model.grid.move_agent(self, self.nexcord)
+        contador = 0
+        self.mepuedomover = True
+
+        agente = [agent for agent in self.model.schedule.agents
+                  if agent.tipo == "car" and
+                  agent.unique_id != self.unique_id and
+                  agent.nexcord == self.nexcord]
+        agentespos = [agent for agent in self.model.schedule.agents
+                      if agent.tipo == "car" and
+                      agent.unique_id != self.unique_id and
+                      agent.pos == self.nexcord]
+        print(len(agente))
+        if len(agente) != 0:
+            contador = contador + 1
+        print(f'contador {contador}')
+        if contador == 0:
+            self.model.grid.move_agent(self, self.nexcord)
+        else:
+            if self.parado:
+                self.mepuedomover = False
+                ...
+            else:
+                if self.unique_id > agente[0].unique_id:
+                    self.parado = False
+                else:
+                    self.parado = True
+
+        
+        
+        # # Si no estan parados avanza
+        # if not(self.parado):
+        #     self.model.grid.move_agent(self, self.nexcord)
+        # elif self.parado:
+        #     self.model.grid.move_agent(self, self.prevcord)
 
 
 class Traffic_Light(Agent):
@@ -346,7 +413,7 @@ class Road(Agent):
         super().__init__(unique_id, model)
         self.direction = direction
         self.tipo = "calle"
-        self.usada = False
+        self.parada = False
 
     def step(self):
         pass
