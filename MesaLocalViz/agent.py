@@ -323,12 +323,14 @@ class Car(Agent):
         if contador == 0:
             self.model.grid.move_agent(self, self.nexcord)
         else:
+            ...
             if self.parado:
                 self.mepuedomover = False
                 ...
             else:
                 if self.unique_id > agente[0].unique_id:
                     self.parado = False
+                    self.model.grid.move_agent(self, self.nexcord)
                 else:
                     self.parado = True
 
