@@ -24,7 +24,6 @@ class Car(Agent):
         self.destino = None
         self.prevcord = ()
 
-
     def move(self):
         """
         Determines if the agent can move in the direction that was chosen
@@ -58,31 +57,73 @@ class Car(Agent):
                         sentido = self.model.dicSentido[cordstr]
                         self.prevSentido = sentido
                         if sentido == "<":
+                            # cambio = self.cambiodecarril(cord, possibleSteps,
+                            #                          sentido, self.destino)
+                            # if cambio[0]:
+                            #     print("CAMBIO CARRIL 1")
+                            #     if cambio[1] < 0:
+                            #         self.nexcord = (cord[0], (cord[1] + 1))
+                            #     else:
+                            #         self.nexcord = (cord[0], (cord[1] - 1))
+                            # else:
                             self.nexcord = ((cord[0] - 1), cord[1])
                         elif sentido == ">":
+                            # cambio = self.cambiodecarril(cord, possibleSteps,
+                            #                              sentido, self.destino)
+                            # if cambio[0]:
+                            #     print("CAMBIO CARRIL 2")
+                            #     if cambio[1] < 0:
+                            #         self.nexcord = (cord[0], (cord[1] + 1))
+                            #     else:
+                            #         self.nexcord = (cord[0], (cord[1] - 1))
+                            # else:
                             self.nexcord = ((cord[0] + 1), cord[1])
                         elif sentido == "v":
+                            # cambio = self.cambiodecarril(cord, possibleSteps,
+                            #                              sentido, self.destino)
+                            # if cambio[0]:
+                            #     print("CAMBIO CARRIL 3")
+                            #     if cambio[1] < 0:
+                            #         self.nexcord = ((cord[0] - 1), cord[1])
+                            #     else:
+                            #         self.nexcord = ((cord[0] + 1), cord[1])
+                            # else:
                             self.nexcord = (cord[0], (cord[1] - 1))
                         elif sentido == "^":
+                            # cambio = self.cambiodecarril(cord, possibleSteps,
+                            #                  sentido, self.destino)
+                            # if cambio[0]:
+                            #     print("CAMBIO CARRIL 4")
+                            #     if cambio[1] < 0:
+                            #         self.nexcord = ((cord[0] - 1), cord[1])
+                            #     else:
+                            #         self.nexcord = ((cord[0] + 1), cord[1])
+                            # else:
                             self.nexcord = (cord[0], (cord[1] + 1))
                         elif sentido == "c":
                             distanciaActual = 10000000000000000
                             for k in possibleSteps:
-                                if k != self.prevcord:  # Evaluo que no sea la posición pasada
+                                # Evaluo que no sea la posición pasada
+                                if k != self.prevcord:
                                     cellmates = self.model.grid.\
                                         get_cell_list_contents(k)
                                     for n in cellmates:
-                                        if n.tipo == "calle" or n.tipo == "semaforo":
-                                            disObjetivo = sqrt(
-                                                pow(self.destino[0] - k[0], 2)
-                                                + pow((self.destino[1]
-                                                        - k[1]), 2))
+                                        if n.tipo == "calle" or\
+                                             n.tipo == "semaforo":
+                                            disObjetivo = self.\
+                                                euclidiana(self.destino, k)
                                             if distanciaActual > disObjetivo:
-                                                sentido2 = self.model.dicSentido[str(list(n.pos))]
-                                                val = self.validarmov(sentido2, list(n.pos), cord)
+                                                sentido2 = self.model.\
+                                                    dicSentido[str(list
+                                                               (n.pos))]
+                                                val = self.\
+                                                    validarmov(sentido2,
+                                                               list(n.pos),
+                                                               cord)
                                                 if val:
                                                     print(sentido2)
-                                                    distanciaActual = disObjetivo
+                                                    distanciaActual =\
+                                                        disObjetivo
                                                     Ncord = list(n.pos)
                                 # else:
                                 #     print(f'Coordenada No valida {k}')
@@ -90,6 +131,85 @@ class Car(Agent):
                             self.nexcord = (Ncord[0], Ncord[1])
         self.prevcord = self.pos
         print(f'Coordenada antigua {self.prevcord}')
+
+    def cambiodecarril(self,
+                       CordO: list,
+                       PS: list,
+                       SCasilla: str,
+                       Destino: list) -> list:
+        result: list = []
+        XOrigen = CordO[0]
+        YOrigen = CordO[1]
+        for i in PS:
+            cellmates = self.model.grid.get_cell_list_contents(i)
+            for j in cellmates:
+                if SCasilla == "<" and XOrigen == i[0] and YOrigen != i[1] and\
+                   j.tipo == "calle":
+                    disObjetivo1 = self.euclidiana(Destino, i)
+                    disObjetivo2 = self.euclidiana(Destino, CordO)
+                    if disObjetivo1 > disObjetivo2:
+                        return [False, 0]
+                    else:
+                        arribaAbajo = YOrigen - i[1]
+                        if arribaAbajo < 0:
+                            # Mover arriba
+                            return [True, 1]
+                        else:
+                            # Mover abajo
+                            return [True, -1]
+
+                elif SCasilla == ">" and XOrigen == i[0] and\
+                        YOrigen != i[1] and\
+                        j.tipo == "calle":
+                    disObjetivo1 = self.euclidiana(Destino, i)
+                    disObjetivo2 = self.euclidiana(Destino, CordO)
+                    if disObjetivo1 > disObjetivo2:
+                        return [False, 0]
+                    else:
+                        arribaAbajo = YOrigen - i[1]
+                        if arribaAbajo < 0:
+                            # Mover arriba
+                            return [True, 1]
+                        else:
+                            # Mover abajo
+                            return [True, -1]
+
+                elif SCasilla == "v" and YOrigen == i[1] and\
+                        XOrigen != i[0] and\
+                        j.tipo == "calle":
+                    disObjetivo1 = self.euclidiana(Destino, i)
+                    disObjetivo2 = self.euclidiana(Destino, CordO)
+                    if disObjetivo1 > disObjetivo2:
+                        return [False, 0]
+                    else:
+                        izDer = XOrigen - i[0]
+                        if izDer < 0:
+                            # Mover derecha
+                            return [True, 1]
+                        else:
+                            # Mover izquierda
+                            return [True, -1]
+
+                elif SCasilla == "^" and YOrigen == i[1] and\
+                        XOrigen != i[0] and\
+                        j.tipo == "calle":
+                    disObjetivo1 = self.euclidiana(Destino, i)
+                    disObjetivo2 = self.euclidiana(Destino, CordO)
+                    if disObjetivo1 > disObjetivo2:
+                        return [False, 0]
+                    else:
+                        izDer = XOrigen - i[0]
+                        if izDer < 0:
+                            # Mover derecha
+                            return [True, 1]
+                        else:
+                            # Mover izquierda
+                            return [True, -1]
+        return result
+
+    def euclidiana(self, Edestino: list, Ek: list) -> float:
+        return sqrt(pow(Edestino[0] - Ek[0], 2) +
+                    pow((Edestino[1] - Ek[1]), 2))
 
     def validarmov(self, SCasilla: str, Objetivo: list, Origen: list) -> bool:
         XOrigen = Origen[0]
@@ -127,7 +247,7 @@ class Car(Agent):
         self.move()
 
     def advance(self) -> None:
-        self.model.grid.move_agent(self, self.nexcord)   
+        self.model.grid.move_agent(self, self.nexcord)
 
 
 class Traffic_Light(Agent):
