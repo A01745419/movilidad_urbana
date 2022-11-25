@@ -19,6 +19,20 @@ class RandomModel(Model):
         self.destino = []
         self.traffic_lights = []
         self.dicSentido = {}
+        self.dicEntrada = {'[3, 22]': [3, 23],
+                           '[21, 22]': [21, 23],
+                           '[12, 20]': [13, 20],
+                           '[18, 20]': [17, 20],
+                           '[3, 19]': [3, 18],
+                           '[2, 15]': [1, 15],
+                           '[5, 15]': [6, 15],
+                           '[12, 15]': [13, 15],
+                           '[18, 14]': [17, 14],
+                           '[10, 7]': [10, 8],
+                           '[21, 5]': [22, 5],
+                           '[5, 4]': [6, 4],
+                           '[12, 4]': [13, 4],
+                           '[19, 2]': [19, 1]}
 
         with open('2022_base.txt') as baseFile:
             lines = baseFile.readlines()
@@ -62,16 +76,17 @@ class RandomModel(Model):
                         agent = Destination(f"d_{r*self.width+c}", self)
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.destino.append([c, self.height - r - 1])
-
-            # Generar Carros
-            for i in range(5):
-                numcar += 1
-                ran = self.random.choice(initCar)
-                car = Car(numcar, self)
-                self.grid.place_agent(car, (ran[0], ran[1]))
-                self.schedule.add(car)
-                car.destino = self.random.choice(self.destino)
-                print(f'Destinos {car.destino} del carro ubicado en {car.pos}')
+        # Generar Carros
+        for i in range(5):
+            numcar += 1
+            ran = self.random.choice(initCar)
+            car = Car(numcar, self)
+            self.grid.place_agent(car, (ran[0], ran[1]))
+            self.schedule.add(car)
+            car.destino = self.random.choice(self.destino)
+            car.entrada = self.dicEntrada[str(car.destino)]
+            print(f'Destinos {car.destino} del carro ubicado en {car.pos}')
+            print(f'Entrada {car.entrada} del carro ubicado en {car.pos}')
 
         # for i in self.dicSentido:w
         #     print(i)
