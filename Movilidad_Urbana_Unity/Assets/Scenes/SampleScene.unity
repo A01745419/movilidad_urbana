@@ -154,7 +154,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layout: {fileID: 4900000, guid: 7d3406bbc1e1ab444b4a619125ba8e6e, type: 3}
   roadPrefab: {fileID: 5229652976339331630, guid: 878572265b0246e4380cdcce01e970b5, type: 3}
-  buildingPrefab: {fileID: 5059500771618347336, guid: f19811e5207f0954b9ea2723ff55429a, type: 3}
+  buildingPrefab: {fileID: 3535268822184842141, guid: fe4073158068d4c4f94a1e42e7563430, type: 3}
+  buildingPrefab2: {fileID: 5459836378255455691, guid: bf7ca5a79c750c44ebbbe045e20e53e7, type: 3}
+  buildingPrefab3: {fileID: 107621661734401363, guid: 0a52def79cbee894a8a7fac02501d903, type: 3}
+  buildingPrefab4: {fileID: 4239088755490764694, guid: c231778875d500541b8e224f7b4dee4c, type: 3}
+  buildingPrefab5: {fileID: 2539429967820223743, guid: 32b17b7744be3d44ab5b6d4975eb49c9, type: 3}
+  apartmentPrefab: {fileID: 1880706269237566630, guid: c9d9a97d39e21134f98b8364adbe3cd4, type: 3}
+  gasPrefab: {fileID: 4470512173969084255, guid: 37f4e049a45689d40bb4c2d30e686fad, type: 3}
   semaphorePrefab: {fileID: 8063565940656115990, guid: 7d9f6065b014b174cb39b7915fdcf87b, type: 3}
   tileSize: 1
 --- !u!4 &166395711
@@ -248,14 +254,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1841214758}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.40862513, y: 0, z: 0, w: 0.9127024}
+  m_LocalPosition: {x: 11.03, y: 10.52, z: -3.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 48.237, y: 0, z: 0}
 --- !u!1 &2119778360
 GameObject:
   m_ObjectHideFlags: 0
