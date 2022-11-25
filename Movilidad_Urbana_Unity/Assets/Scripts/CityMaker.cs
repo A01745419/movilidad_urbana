@@ -8,22 +8,25 @@ public class CityMaker : MonoBehaviour
     [SerializeField] GameObject roadPrefab;
     [SerializeField] GameObject buildingPrefab;
     [SerializeField] GameObject buildingPrefab2;
-    [SerializeField] GameObject buildingPrefab3;
+    //[SerializeField] GameObject buildingPrefab3;
     [SerializeField] GameObject buildingPrefab4;
     [SerializeField] GameObject buildingPrefab5;
     [SerializeField] GameObject apartmentPrefab;
     [SerializeField] GameObject gasPrefab;
+    [SerializeField] GameObject estadioPrefab;
+    [SerializeField] GameObject grassPrefab;
+    [SerializeField] GameObject treePrefab;
     [SerializeField] GameObject semaphorePrefab;
    
 
     [SerializeField] int tileSize;
 
-    List<GameObject> prefabs ;
+    List<GameObject> prefabs;
 
     // Start is called before the first frame update
     void Start()
     { 
-        prefabs = new List<GameObject> {buildingPrefab, buildingPrefab2, buildingPrefab3, buildingPrefab4, buildingPrefab5, apartmentPrefab, gasPrefab};
+        prefabs = new List<GameObject> {buildingPrefab, buildingPrefab2, buildingPrefab4, buildingPrefab5, apartmentPrefab, gasPrefab};
         MakeTiles(layout.text);
     }
 
@@ -51,21 +54,21 @@ public class CityMaker : MonoBehaviour
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
                 tile = Instantiate(roadPrefab, position, Quaternion.identity);
-                tile.transform.parent = transform;
+                //tile.transform.parent = transform;
                 x += 1;
             }
             else if (tiles[i] == 'v' || tiles[i] == '^')
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
                 tile = Instantiate(roadPrefab, position, Quaternion.Euler(0, 90, 0));
-                tile.transform.parent = transform;
+                //tile.transform.parent = transform;
                 x += 1;
             }
             else if (tiles[i] == 'c')
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
                 tile = Instantiate(roadPrefab, position, Quaternion.Euler(0, 90, 0));
-                tile.transform.parent = transform;
+                //tile.transform.parent = transform;
                 x += 1;
             }
             else if (tiles[i] == 's')
@@ -89,6 +92,7 @@ public class CityMaker : MonoBehaviour
             else if (tiles[i] == 'D')
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
+                tile = Instantiate(grassPrefab, position, Quaternion.identity);
                 tile = Instantiate(buildingPrefab, position, Quaternion.Euler(0, 90, 0));
                 tile.GetComponent<Renderer>().materials[0].color = Color.red;
                 tile.transform.parent = transform;
@@ -97,16 +101,28 @@ public class CityMaker : MonoBehaviour
             else if (tiles[i] == '#')
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
+                tile = Instantiate(grassPrefab, position, Quaternion.identity);
                 System.Random rnd = new System.Random();
                 int randIndex = rnd.Next(prefabs.Count);
                 tile = Instantiate(prefabs[randIndex], position, Quaternion.identity);
                 //tile.transform.localScale = new Vector3(1, 1, 1);
                 tile.transform.parent = transform;
                 x += 1;
-            }else if (tiles[i] == 'A')
+            }
+            else if (tiles[i] == 'E')
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);
-                tile = Instantiate(apartmentPrefab, position, Quaternion.identity);
+                tile = Instantiate(grassPrefab, position, Quaternion.identity);
+                tile = Instantiate(estadioPrefab, position, Quaternion.identity);
+                //tile.transform.localScale = new Vector3(1, 1, 1);
+                tile.transform.parent = transform;
+                x += 1;
+            }
+            else if (tiles[i] == 'e')
+            {
+                position = new Vector3(x * tileSize, 0, y * tileSize);
+                tile = Instantiate(grassPrefab  , position, Quaternion.identity);
+                tile = Instantiate(treePrefab, position, Quaternion.identity);
                 //tile.transform.localScale = new Vector3(1, 1, 1);
                 tile.transform.parent = transform;
                 x += 1;

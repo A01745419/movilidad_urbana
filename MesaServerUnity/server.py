@@ -21,7 +21,7 @@ app = Flask("Traffic example")
 
 @app.route('/init', methods=['POST', 'GET'])
 def initModel():
-    global currentStep, randomModel, number_agents, width, height
+    global currentStep, randomModel, number_agents
 
     if request.method == 'POST':
         number_agents = int(request.form.get('NAgents'))
@@ -34,41 +34,23 @@ def initModel():
 
         return jsonify({"message":"Parameters recieved, model initiated."})
 
-@app.route('/getTrafficLight', methods=['GET'])
+@app.route('/getAgents', methods=['GET'])
 def getTrafficLight():
     global randomModel
 
     if request.method == 'GET':
-        agentPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Traffic_Light)]
+        agentPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Car)]
 
         return jsonify({'positions':agentPositions})
 
-@app.route('/getObstacles', methods=['GET'])
+@app.route('/getSemaforos', methods=['GET'])
 def getObstacles():
     global randomModel
 
     if request.method == 'GET':
-        carPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Obstacle) ]
+        semaforoPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z, "state": bool(agent.state)} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Obstacle) ]
 
-        return jsonify({'positions':carPositions})
-
-@app.route('/getDestination', methods=['GET'])
-def getDestination():
-    global randomModel
-
-    if request.method == 'GET':
-        boxPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Destination)]
-
-        return jsonify({'positions': boxPosition})
-
-@app.route('/getRoad', methods=['GET'])
-def getRoad():
-    global randomModel
-
-    if request.method == 'GET':
-        pilaPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Road)]
-
-        return jsonify({'positions': pilaPosition})
+        return jsonify({'positions':semaforoPositions})
 
 @app.route('/update', methods=['GET'])
 def updateModel():
