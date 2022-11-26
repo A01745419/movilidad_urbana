@@ -84,8 +84,8 @@ class RandomModel(Model):
             self.grid.place_agent(car, (ran[0], ran[1]))
             self.schedule.add(car)
             car.destino = self.random.choice(self.destino)
-            car.entrada = self.dicEntrada[str(car.destino)]
             print(f'Destinos {car.destino} del carro ubicado en {car.pos}')
+            car.entrada = self.dicEntrada[str(car.destino)]
             print(f'Entrada {car.entrada} del carro ubicado en {car.pos}')
 
         # for i in self.dicSentido:w

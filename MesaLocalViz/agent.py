@@ -33,7 +33,7 @@ class Car(Agent):
         """
         Determines if the agent can move in the direction that was chosen
         """
-               
+
         possibleSteps = self.model.grid.get_neighborhood(
             self.pos,
             moore=False,
@@ -92,116 +92,64 @@ class Car(Agent):
                     elif j.tipo == "calle":
                         if cordstr in self.model.dicSentido:
                             sentido = self.model.dicSentido[cordstr]
-                            self.prevSentido = sentido
+                            print(self.prevSentido)
                             if sentido == "<":
                                 self.nexcord = ((cord[0] - 1), cord[1])
+                                self.prevSentido = sentido
                             elif sentido == ">":
                                 self.nexcord = ((cord[0] + 1), cord[1])
+                                self.prevSentido = sentido
                             elif sentido == "v":
                                 self.nexcord = (cord[0], (cord[1] - 1))
+                                self.prevSentido = sentido
                             elif sentido == "^":
                                 self.nexcord = (cord[0], (cord[1] + 1))
+                                self.prevSentido = sentido
                             elif sentido == "c":
-                                distanciaActual = 10000000000000000
-                                for k in possibleSteps:
-                                    # Evaluo que no sea la posición pasada
-                                    if k != self.prevcord:
-                                        cellmates = self.model.grid.\
-                                            get_cell_list_contents(k)
-                                        for n in cellmates:
-                                            if n.tipo == "calle" or\
-                                                n.tipo == "semaforo":
-                                                disObjetivo = self.\
-                                                    euclidiana(self.destino, k)
-                                                if distanciaActual > disObjetivo:
-                                                    sentido2 = self.model.\
-                                                        dicSentido[str(list
-                                                                (n.pos))]
-                                                    val = self.\
-                                                        validarmov(sentido2,
-                                                                list(n.pos),
-                                                                cord)
-                                                    if val:
-                                                        distanciaActual =\
-                                                            disObjetivo
-                                                        Ncord = list(n.pos)
-                                self.nexcord = (Ncord[0], Ncord[1])
+                                if (self.pos == (17, 12) or self.pos == (17, 11))\
+                                    and  self.destino[0] < 13\
+                                        and self.destino[1] > 11:
+                                    self.nexcord = (cord[0], (cord[1] + 1))
+                                elif (self.pos == (14, 18) or self.pos == (13, 18))\
+                                    and  self.destino[0] < 13\
+                                        and self.destino[1] > 11:
+                                    self.nexcord = (cord[0], (cord[1] - 1))
+                                elif (self.pos == (22, 11) or self.pos == (23, 11))\
+                                    and self.destino[1] > 20:
+                                    self.nexcord = (cord[0], (cord[1] + 1))
+                                elif (self.pos == (16, 1) or self.pos == (16, 0))\
+                                    and self.destino[0] > 18:
+                                    self.nexcord = ((cord[0] + 1), cord[1])
+                                else:
+                                    distanciaActual = 10000000000000000
+                                    for k in possibleSteps:
+                                        # Evaluo que no sea la posición pasada
+                                        if k != self.prevcord:
+                                            cellmates = self.model.grid.\
+                                                get_cell_list_contents(k)
+                                            for n in cellmates:
+                                                if n.tipo == "calle" or\
+                                                    n.tipo == "semaforo":
+                                                    disObjetivo = self.\
+                                                        euclidiana(self.entrada, k)
+                                                    if distanciaActual > disObjetivo:
+                                                        sentido2 = self.model.\
+                                                            dicSentido[str(list
+                                                                    (n.pos))]
+                                                        val = self.\
+                                                            validarmov(sentido2,
+                                                                    list(n.pos),
+                                                                    cord)
+                                                        if val:
+                                                            distanciaActual =\
+                                                                disObjetivo
+                                                            Ncord = list(n.pos)
+                                    self.nexcord = (Ncord[0], Ncord[1])
             self.prevcord = self.pos
 
-    def cambiodecarril(self,
-                       CordO: list,
-                       PS: list,
-                       SCasilla: str,
-                       Destino: list) -> list:
-        result: list = []
-        XOrigen = CordO[0]
-        YOrigen = CordO[1]
-        for i in PS:
-            cellmates = self.model.grid.get_cell_list_contents(i)
-            for j in cellmates:
-                if SCasilla == "<" and XOrigen == i[0] and YOrigen != i[1] and\
-                   j.tipo == "calle":
-                    disObjetivo1 = self.euclidiana(Destino, i)
-                    disObjetivo2 = self.euclidiana(Destino, CordO)
-                    if disObjetivo1 > disObjetivo2:
-                        return [False, 0]
-                    else:
-                        arribaAbajo = YOrigen - i[1]
-                        if arribaAbajo < 0:
-                            # Mover arriba
-                            return [True, 1]
-                        else:
-                            # Mover abajo
-                            return [True, -1]
-
-                elif SCasilla == ">" and XOrigen == i[0] and\
-                        YOrigen != i[1] and\
-                        j.tipo == "calle":
-                    disObjetivo1 = self.euclidiana(Destino, i)
-                    disObjetivo2 = self.euclidiana(Destino, CordO)
-                    if disObjetivo1 > disObjetivo2:
-                        return [False, 0]
-                    else:
-                        arribaAbajo = YOrigen - i[1]
-                        if arribaAbajo < 0:
-                            # Mover arriba
-                            return [True, 1]
-                        else:
-                            # Mover abajo
-                            return [True, -1]
-
-                elif SCasilla == "v" and YOrigen == i[1] and\
-                        XOrigen != i[0] and\
-                        j.tipo == "calle":
-                    disObjetivo1 = self.euclidiana(Destino, i)
-                    disObjetivo2 = self.euclidiana(Destino, CordO)
-                    if disObjetivo1 > disObjetivo2:
-                        return [False, 0]
-                    else:
-                        izDer = XOrigen - i[0]
-                        if izDer < 0:
-                            # Mover derecha
-                            return [True, 1]
-                        else:
-                            # Mover izquierda
-                            return [True, -1]
-
-                elif SCasilla == "^" and YOrigen == i[1] and\
-                        XOrigen != i[0] and\
-                        j.tipo == "calle":
-                    disObjetivo1 = self.euclidiana(Destino, i)
-                    disObjetivo2 = self.euclidiana(Destino, CordO)
-                    if disObjetivo1 > disObjetivo2:
-                        return [False, 0]
-                    else:
-                        izDer = XOrigen - i[0]
-                        if izDer < 0:
-                            # Mover derecha
-                            return [True, 1]
-                        else:
-                            # Mover izquierda
-                            return [True, -1]
-        return result
+    def cualesmejor(self,
+                       n, Ncord):
+        ...
 
     def euclidiana(self, Edestino: list, Ek: list) -> float:
         return sqrt(pow(Edestino[0] - Ek[0], 2) +
@@ -241,43 +189,7 @@ class Car(Agent):
         Determines the new direction it will take, and then moves
         """
         self.move()
-        '''
-        # contador = 0
-        # agente = [agent for agent in self.model.schedule.agents
-        #           if agent.tipo == "car" and
-        #           agent.unique_id != self.unique_id and
-        #           agent.nexcord == self.nexcord]
-        # print(len(agente))
-        # if len(agente) != 0:
-        #     contador = contador + 1
-        # print(f'contador {contador}')
 
-        #     if agente[0].parado == True:
-        #         self.parado = True
-        #     else:
-        #         if self.unique_id > agente[0].unique_id:
-        #             self.parado = False
-        #         else:
-        #             self.parado = True
-        # for x in agente:
-        #     if x.nexcord == self.nexcord:
-        #         if x.parado:
-        #             # Esta x en un semaforo en rojo
-        #             print("Quieto, el de enfrente esta parado")
-        #             print(f'Prev cod de self {self.prevcord}')
-        #             print(f'Coorde de x {x.pos} y next {x.nexcord}')
-        #             print(self.nexcord)
-        #             print(self.prevcord)
-        #             self.parado = True
-        #         elif not(x.parado):
-        #             print(f'Id de x= {x.unique_id} , pos {x.pos}')
-        #             print(f'id de Self= {self.unique_id}, pos {x.pos}')
-        #             if self.unique_id > x.unique_id:
-        #                 self.parado = False
-        #             else:
-        #                 self.parado = True
-        '''
- 
     def advance(self) -> None:
         contador = 0
         self.mepuedomover = True
@@ -290,10 +202,8 @@ class Car(Agent):
                       if agent.tipo == "car" and
                       agent.unique_id != self.unique_id and
                       agent.pos == self.nexcord]
-        print(len(agente))
         if len(agente) != 0:
             contador = contador + 1
-        print(f'contador {contador}')
         if contador == 0:
             self.model.grid.move_agent(self, self.nexcord)
         else:
