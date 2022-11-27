@@ -255,19 +255,65 @@ class Traffic_Light(Agent):
         self.state = state
         self.timeToChange = timeToChange
         self.tipo = "semaforo"
+        self.listaSemaforoContador = None
+        self.dicCalles = None
+        self.dicHermano = None
+        self.dicContrario = None
+        self.cuenta = 0
+
 
     def modificarcolor(self):
         self.compañero = []
         self.vecinos = []
 
+    def avisarHermano(self, agenteHermano):
+        if self.state == True:
+            agenteHermano.state = True
+        elif self.state == False:
+            agenteHermano.state = False
+
+    def contarCoches(self):
+        contadorCarros = 0
+        posicion = str(list(self.pos))
+        vecinos = self.dicCalles[posicion]
+        for i in vecinos:
+            agentes = self.model.grid.get_cell_list_contents(i)
+            for k in agentes:
+                if k.tipo == "car":
+                    contadorCarros += 1
+        return contadorCarros
+
+    def compararContrario(self, agenteContrario, hermanoContrario):
+        if self.cuenta < agenteContrario.cuenta:
+            self.state = False
+            agenteContrario.state = True
+            hermanoContrario.state = True
+        elif self.cuenta > agenteContrario.cuenta:
+            self.state = True
+            agenteContrario.state = False
+            hermanoContrario.state = False
+        # Ya que esta funcion solo la correran los prioritaros
+        # si los cont son iguales, el prioritario sera el verde
+        else:
+            self.state = True
+            agenteContrario.state = False
+            hermanoContrario.state = False
+
+
     def step(self):
-        """
-        To change the state (green or red) of the traffic light in case
-        you consider the time to change of each traffic light.
-        """
-        # if self.model.schedule.steps % self.timeToChange == 0:
-        #     self.state = not self.state
-        pass
+        if self.pos in self.listaSemaforoContador:
+            self.cuenta = self.contarCoches()
+            posicion = str(list(self.pos))
+            hermano = self.dicHermano[posicion]
+            agenteHermano = self.model.grid.get_cell_list_contents(hermano)
+
+            if posicion in self.dicContrario:
+                contrario = self.dicContrario[posicion]
+                agenteContrario = self.model.grid.get_cell_list_contents(contrario)
+                hermanoContrario = self.dicHermano[str(list(agenteContrario[0].pos))]
+                agenteHermanoContrario = self.model.grid.get_cell_list_contents(hermanoContrario)
+                self.compararContrario(agenteContrario[0], agenteHermanoContrario[0])
+                self.avisarHermano(agenteHermano[0])
 
 
 class Destination(Agent):
