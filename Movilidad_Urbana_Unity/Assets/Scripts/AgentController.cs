@@ -147,7 +147,6 @@ public class AgentController : MonoBehaviour
         WWWForm form = new WWWForm();
 
         form.AddField("NAgents", NAgents.ToString());
-        form.AddField("pasos", pasos.ToString());
 
         UnityWebRequest www = UnityWebRequest.Post(serverUrl + sendConfigEndpoint, form);
         www.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
