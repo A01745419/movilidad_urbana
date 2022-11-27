@@ -115,11 +115,29 @@ class Car(Agent):
                                         and self.destino[1] > 11:
                                     self.nexcord = (cord[0], (cord[1] - 1))
                                 elif (self.pos == (22, 11) or self.pos == (23, 11))\
+                                    and self.destino[0] == 18:
+                                    self.nexcord = ((cord[0] - 1), cord[1])
+                                elif (self.pos == (22, 11) or self.pos == (23, 11))\
                                     and self.destino[1] > 20:
                                     self.nexcord = (cord[0], (cord[1] + 1))
                                 elif (self.pos == (16, 1) or self.pos == (16, 0))\
                                     and self.destino[0] > 18:
                                     self.nexcord = ((cord[0] + 1), cord[1])
+                                elif (self.pos == (13, 8) or self.pos == (13, 9))\
+                                    and self.destino[1] < 11:
+                                    self.nexcord = (cord[0], (cord[1] - 1))
+                                elif (self.pos == (7, 11) or self.pos == (7, 12))\
+                                    and self.destino[1] > 11:
+                                    self.nexcord = (cord[0], (cord[1] + 1))
+                                elif (self.pos == (14, 24) or self.pos == (14, 23))\
+                                    and self.destino == [5, 15]:
+                                    self.nexcord = (cord[0], (cord[1] - 1))
+                                elif (self.pos == (14, 24) or self.pos == (14, 23))\
+                                    and self.destino == [3, 19]:
+                                    self.nexcord = (cord[0], (cord[1] - 1))
+                                elif (self.pos == (14, 18) or self.pos == (13, 18))\
+                                    and self.destino == [5, 15]:
+                                    self.nexcord = (cord[0], (cord[1] - 1))
                                 else:
                                     distanciaActual = 10000000000000000
                                     for k in possibleSteps:
@@ -144,7 +162,7 @@ class Car(Agent):
                                                             distanciaActual =\
                                                                 disObjetivo
                                                             Ncord = list(n.pos)
-                                    self.nexcord = (Ncord[0], Ncord[1])
+                                                            self.nexcord = (Ncord[0], Ncord[1])
             self.prevcord = self.pos
 
     def cualesmejor(self,
