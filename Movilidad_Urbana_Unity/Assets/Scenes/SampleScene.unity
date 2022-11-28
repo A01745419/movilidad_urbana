@@ -215,7 +215,7 @@ MonoBehaviour:
   width: 10
   height: 10
   pasos: 0
-  timeToUpdate: 5
+  timeToUpdate: 1
 --- !u!4 &288597168
 Transform:
   m_ObjectHideFlags: 0
