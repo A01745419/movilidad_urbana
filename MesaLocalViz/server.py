@@ -1,3 +1,8 @@
+"""
+Servidor Local con Vizualizador de Mesa de Transito de Coches en Ciudad con Semaforos Inteligentes
+Autores: Jose Luis Madrigal, Cesar Emiliano Palome, Christian Parrish y Jorge Blanco
+Creado: Noviembre 21, 2022
+"""
 from agent import *
 from model import RandomModel
 from mesa.visualization.modules import CanvasGrid, BarChartModule
@@ -56,9 +61,8 @@ with open('2022_base.txt') as baseFile:
     width = len(lines[0])-1
     height = len(lines)
 
-model_params = {"N": 5}
+model_params = {"N": 14}
 
-print(width, height)
 grid = CanvasGrid(agent_portrayal, width, height, 500, 500)
 
 server = ModularServer(RandomModel, [grid], "Traffic Base", model_params)

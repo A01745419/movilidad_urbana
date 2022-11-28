@@ -1,3 +1,8 @@
+"""
+Modelo de Transito de Coches en Ciudad con Semaforos Inteligentes
+Autores: Jose Luis Madrigal, Cesar Emiliano Palome, Christian Parrish y Jorge Blanco
+Creado: Noviembre 21, 2022
+"""
 from mesa import Model
 from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid
@@ -18,6 +23,9 @@ class RandomModel(Model):
         self.destino = []
         self.traffic_lights = []
         self.dicSentido = {}
+        
+        # Se guardan las celdas de las calles que estan junto a cada destino para que
+        # los coches puedan entrar cuando lo encuentren.
         self.dicEntrada = {'[3, 22]': [3, 23],
                            '[21, 22]': [21, 23],
                            '[12, 20]': [13, 20],
@@ -34,12 +42,12 @@ class RandomModel(Model):
                            '[19, 2]': [19, 1]}
 
         # Ya que un semaforo completo es representado por 2 agentes en diferentes celdas, se elige 1 
-        # para hacer el conteo 1 sola vez
+        # de cada pareja para hacer el conteo 1 sola vez.
         self.listaSemaforoContador = [(0, 13), (2, 11), (5, 0), (7, 2), (7, 16), (8, 18),
                                       (12, 0), (14, 2), (16, 22), (18, 24), (21, 9), (23, 7)]
 
-        # Cada celda designada de un semaforo puede sensar hasta 8 celdas, ya que las calles tienen 2 carriles,
-        # por lo que tiene un alcance de 3 celdas de calles y se incluye a si mismo y su hermano
+        # Una celda semaforo desiganda como contadora puede sensar hasta 8 celdas, debido a que revisa
+        # las 3 celdas de ambos carriles de su calle (6) y tambien su propia celda y la de su hermano (2).
         self.dicSemaforoCalles = {'[0, 13]': [(0, 13),(0, 14),(0, 15),(0, 16),(1, 13),(1, 14),(1, 15),(1, 16)],
                                  '[2, 11]': [(2, 11),(3, 11),(4, 11),(5, 11),(2, 12),(3, 12),(4, 12),(5, 12)],
                                  '[5, 0]': [(2, 0),(3, 0),(4, 0),(5, 0),(2, 1),(3, 1),(4, 1),(5, 1)],
@@ -53,9 +61,8 @@ class RandomModel(Model):
                                  '[21, 9]': [(18, 8),(19, 8),(20, 8),(21, 8),(18, 9),(19, 9),(20, 9),(21, 9)],
                                  '[23, 7]': [(22, 4),(22, 5),(22, 6),(22, 7),(23, 4),(23, 5),(23, 6),(23, 7)]}
 
-
         # Se relaciona cada semaforo contador con el agente semaforo que esta a su lado para
-        # mantener mismo comportamiento en ambos
+        # mantener mismo comportamiento en ambos.
         self.dicSemaforoHermano = {'[0, 13]': (1, 13),
                                    '[2, 11]': (2, 12),
                                    '[5, 0]': (5, 1),
@@ -69,7 +76,11 @@ class RandomModel(Model):
                                    '[21, 9]': (21, 8),
                                    '[23, 7]': (22, 7)}
 
-        # Los que daran la señal seran los semaforos en calles mas prioritarias que son las llaves
+        # Se determinan las celdas semaforo que haran la comparacion con su contrario,
+        # para no verificar los contadores mas de una vez. 
+        # Esos semaforos seran los que tengan mas prioridad, para que sean los que
+        # se pongan verdes si la cuenta es la misma con su contrario. 
+        # (Son los que no implican un cambio de sentido o vuelta).
         self.dicSemaforoContrario = {'[0, 13]': (2, 11),
                                      '[5, 0]': (7, 2),
                                      '[8, 18]': (7, 16),
@@ -123,6 +134,7 @@ class RandomModel(Model):
                         agent = Destination(f"d_{r*self.width+c}", self)
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.destino.append([c, self.height - r - 1])
+
         # Generar Carros
         for i in range(N):
             ran = self.random.choice(initCar)
@@ -131,13 +143,14 @@ class RandomModel(Model):
             self.schedule.add(car)
             car.destino = self.random.choice(self.destino)
             self.destino.remove(car.destino)
-            print(f'Destinos {car.destino} del carro ubicado en {car.pos}')
             car.entrada = self.dicEntrada[str(car.destino)]
-            print(f'Entrada {car.entrada} del carro ubicado en {car.pos}')
+            print(f'Destino {car.destino} del carro iniciado en {car.pos}')
+            print(f'Entrada {car.entrada} del carro iniciado en {car.pos}')
+            print(" ")
 
         self.num_agents = N
         self.running = True
 
     def step(self):
-        '''Advance the model by one step.'''
+        '''Avanza el modelo por un paso.'''
         self.schedule.step()
