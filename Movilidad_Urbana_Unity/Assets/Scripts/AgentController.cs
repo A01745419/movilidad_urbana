@@ -181,7 +181,7 @@ public class AgentController : MonoBehaviour
 
             foreach (AgentData agent in agentsData.positions)
             {
-                Vector3 newAgentPosition = new Vector3(agent.x, (float) 0, agent.z);
+                Vector3 newAgentPosition = new Vector3(agent.x, (float) 0, agent.z - 1);
 
                     if(!started)
                     {
@@ -217,7 +217,7 @@ public class AgentController : MonoBehaviour
             {
                     if(!started)
                     {
-                        semaforosInst[semaforo.id] = Instantiate(semaforoPrefab, new Vector3(semaforo.x, semaforo.y, semaforo.z), Quaternion.identity);
+                        semaforosInst[semaforo.id] = Instantiate(semaforoPrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
                         Debug.Log(semaforosInst[semaforo.id]);
                     }
                     else
