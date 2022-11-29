@@ -62,7 +62,7 @@ with open('2022_base.txt') as baseFile:
     width = len(lines[0]) - 1
     height = len(lines)
 
-model_params = {"N": 25}
+model_params = {"N": 30}
 
 carsLeftGraph = ChartModule([{"Label": "Total Cars Not In Destination", "Color": "Blue"}], data_collector_name='dataCollectorCars')
 
@@ -70,7 +70,7 @@ movementsGraph = ChartModule([{"Label": "Total Movements Cars", "Color": "Red"}]
 
 grid = CanvasGrid(agent_portrayal, width, height, 500, 500)
 
-server = ModularServer(RandomModel, [grid, carsLeftGraph, movementsGraph], "Traffic Base", model_params)
+server = ModularServer(RandomModel, [grid, movementsGraph, carsLeftGraph], "Traffic Base", model_params)
 
 server.port = 8521  # The default
 server.launch()

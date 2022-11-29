@@ -293,8 +293,10 @@ class Traffic_Light(Agent):
         self.tipo = "semaforo"
         self.listaSemaforoContador = None
         self.dicCalles = None
+        self.dicPrioritario = None
         self.dicHermano = None
         self.dicContrario = None
+        self.cuentaPrioritario = 0
         self.cuenta = 0
 
 
@@ -330,6 +332,25 @@ class Traffic_Light(Agent):
         return contadorCarros
 
 
+    def contarCochesFrente(self):
+        '''
+        Cuenta los coches en su calle, teniendo un alcance
+        de 3 celdas, de ambos carriles y tambien
+        toma en cuenta su propia celda y la de su hermano.
+        Return:
+            contadorCarros: numero de carros en sus celdas de calle.
+        '''
+        contadorCarros = 0
+        posicion = str(list(self.pos))
+        vecinos = self.dicPrioritario[posicion]
+        for i in vecinos:
+            agentes = self.model.grid.get_cell_list_contents(i)
+            for k in agentes:
+                if k.tipo == "car":
+                    contadorCarros += 1
+        return contadorCarros
+
+
     def compararContrario(self, agenteContrario, hermanoContrario):
         '''
         Revisa contador propio y de contrario para determinar
@@ -340,18 +361,26 @@ class Traffic_Light(Agent):
             agenteContrario: referncia a agente semaforo contrario.
             heramnoContrario: referencia a agente semaforo hermano de contrario.
         '''
-        if self.cuenta < agenteContrario.cuenta:
-            self.state = False
-            agenteContrario.state = True
-            hermanoContrario.state = True
-        elif self.cuenta > agenteContrario.cuenta:
+        
+        # Mantiene prioridad cuando coches ya pasaron por semaforo prioritario
+        if self.cuentaPrioritario > 0:
             self.state = True
             agenteContrario.state = False
             hermanoContrario.state = False
         else:
-            self.state = True
-            agenteContrario.state = False
-            hermanoContrario.state = False
+            # Si no hay coches entre los 2 semaforos, hace comparacion
+            if self.cuenta < agenteContrario.cuenta:
+                self.state = False
+                agenteContrario.state = True
+                hermanoContrario.state = True
+            elif self.cuenta > agenteContrario.cuenta:
+                self.state = True
+                agenteContrario.state = False
+                hermanoContrario.state = False
+            else:
+                self.state = True
+                agenteContrario.state = False
+                hermanoContrario.state = False
 
 
     def step(self):
@@ -360,19 +389,22 @@ class Traffic_Light(Agent):
         y compara contrario.
         '''
         if self.model.numAgents > 0:
+            # Se revisa que sea un semaforo que cuenta coches
             if self.pos in self.listaSemaforoContador:
                 self.cuenta = self.contarCoches()
                 posicion = str(list(self.pos))
                 hermano = self.dicHermano[posicion]
                 agenteHermano = self.model.grid.get_cell_list_contents(hermano)
-
-                if posicion in self.dicContrario:
-                    contrario = self.dicContrario[posicion]
-                    agenteContrario = self.model.grid.get_cell_list_contents(contrario)
-                    hermanoContrario = self.dicHermano[str(list(agenteContrario[0].pos))]
-                    agenteHermanoContrario = self.model.grid.get_cell_list_contents(hermanoContrario)
-                    self.compararContrario(agenteContrario[0], agenteHermanoContrario[0])
-                    self.avisarHermano(agenteHermano[0])
+                # Se revisa que sea un semaforo prioritario
+                if posicion in self.dicPrioritario:
+                    self.cuentaPrioritario = self.contarCochesFrente()
+                    if posicion in self.dicContrario:
+                        contrario = self.dicContrario[posicion]
+                        agenteContrario = self.model.grid.get_cell_list_contents(contrario)
+                        hermanoContrario = self.dicHermano[str(list(agenteContrario[0].pos))]
+                        agenteHermanoContrario = self.model.grid.get_cell_list_contents(hermanoContrario)
+                        self.compararContrario(agenteContrario[0], agenteHermanoContrario[0])
+                        self.avisarHermano(agenteHermano[0])
 
 
 class Destination(Agent):

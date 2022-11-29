@@ -61,20 +61,27 @@ class RandomModel(Model):
 
         # Una celda semaforo desiganda como contadora puede sensar hasta 8 celdas, debido a que revisa
         # las 3 celdas de ambos carriles de su calle (6) y tambien su propia celda y la de su hermano (2).
-        # Aunque aquellas que sean de un semaforo con prioridad (no cambia de sentido), 
-        # tendran 4 celdas adicionales que sensar, que son las de enfrente suyo.
-        self.dicSemaforoCalles = {'[0, 13]': [(0, 11),(0, 12),(0, 13),(0, 14),(0, 15),(0, 16),(1, 11),(1, 12),(1, 13),(1, 14),(1, 15),(1, 16)],
+        self.dicSemaforoCalles = {'[0, 13]': [(0, 13),(0, 14),(0, 15),(0, 16),(1, 13),(1, 14),(1, 15),(1, 16)],
                                  '[2, 11]': [(2, 11),(3, 11),(4, 11),(5, 11),(2, 12),(3, 12),(4, 12),(5, 12)],
-                                 '[5, 0]': [(2, 0),(3, 0),(4, 0),(5, 0),(6, 0),(7, 0),(2, 1),(3, 1),(4, 1),(5, 1),(6, 1),(7, 1)],
+                                 '[5, 0]': [(2, 0),(3, 0),(4, 0),(5, 0),(2, 1),(3, 1),(4, 1),(5, 1)],
                                  '[7, 2]': [(6, 2),(6, 3),(6, 4),(6, 5),(7, 2),(7, 3),(7, 4),(7, 5)],
                                  '[7, 16]': [(6, 13),(6, 14),(6, 15),(6, 16),(7, 13),(7, 14),(7, 15),(7, 16)],
-                                 '[8, 18]': [(6, 17),(7, 17),(8, 17),(9, 17),(10, 17),(11, 17),(6, 18),(7, 18),(8, 18),(9, 18),(10, 18),(11, 18)],
-                                 '[12, 0]': [(9, 0),(10, 0),(11, 0),(12, 0),(13, 0),(14, 0),(9, 1),(10, 1),(11, 1),(12, 1),(13, 1),(14, 1)],
+                                 '[8, 18]': [(8, 17),(9, 17),(10, 17),(11, 17),(8, 18),(9, 18),(10, 18),(11, 18)],
+                                 '[12, 0]': [(9, 0),(10, 0),(11, 0),(12, 0),(9, 1),(10, 1),(11, 1),(12, 1)],
                                  '[14, 2]': [(13, 2),(13, 3),(13, 4),(13, 5),(14, 2),(14, 3),(14, 4),(14, 5)],
                                  '[16, 22]': [(16, 19),(16, 20),(16, 21),(16, 22),(17, 19),(17, 20),(17, 21),(17, 22)],
-                                 '[18, 24]': [(16, 23),(17, 23),(18, 23),(19, 23),(20, 23),(21, 23),(16, 24),(17, 24),(18, 24),(19, 24),(20, 24),(21, 24)],
+                                 '[18, 24]': [(18, 23),(19, 23),(20, 23),(21, 23),(18, 24),(19, 24),(20, 24),(21, 24)],
                                  '[21, 9]': [(18, 8),(19, 8),(20, 8),(21, 8),(18, 9),(19, 9),(20, 9),(21, 9)],
-                                 '[23, 7]': [(22, 4),(22, 5),(22, 6),(22, 7),(22, 8),(22, 9),(23, 4),(23, 5),(23, 6),(23, 7),(23, 8),(23, 9)]}
+                                 '[23, 7]': [(22, 4),(22, 5),(22, 6),(22, 7),(23, 4),(23, 5),(23, 6),(23, 7)]}
+
+        # Se guardan las celdas de al frente de semaforos prioritarios para evitar choques despues de
+        # comparar celdas de calles con contrario (mantiene prioridad hasta que no haya nadie en interseccion)
+        self.dicSemaforoPrioritario = {'[0, 13]': [(0, 12),(1, 12)],
+                                       '[5, 0]': [(6, 0),(6, 1)],
+                                       '[8, 18]': [(7, 17),(7, 18)],
+                                       '[12, 0]': [(13, 0),(13, 1)],
+                                       '[18, 24]': [(17, 23),(17, 24)],
+                                       '[23, 7]': [(22, 8),(23, 8)]}
 
         # Se relaciona cada semaforo contador con el agente semaforo que esta a su lado para
         # mantener mismo comportamiento en ambos.
@@ -135,6 +142,7 @@ class RandomModel(Model):
                         self.schedule.add(agent)
                         agent.listaSemaforoContador = self.listaSemaforoContador
                         agent.dicCalles = self.dicSemaforoCalles
+                        agent.dicPrioritario = self.dicSemaforoPrioritario
                         agent.dicHermano = self.dicSemaforoHermano
                         agent.dicContrario = self.dicSemaforoContrario
                         self.traffic_lights.append(agent)
@@ -192,7 +200,8 @@ class RandomModel(Model):
         self.dataCollectorCars.collect(self)
         self.dataCollectorMovements.collect(self)
         print(f'El numero de coches restantes que no han llegado a su destino es: {self.numAgents}')
-        for x in self.carsInDestination:
-            self.grid.remove_agent(x)
-            self.schedule.remove(x)
-            self.carsInDestination.remove(x)
+        if len(self.carsInDestination) > 0:
+            for x in self.carsInDestination:
+                self.grid.remove_agent(x)
+                self.schedule.remove(x)
+                self.carsInDestination.remove(x)
