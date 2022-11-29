@@ -8,6 +8,7 @@ from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid
 from agent import *
 import json
+from mesa.datacollection import DataCollector
 
 
 class RandomModel(Model):
@@ -19,15 +20,27 @@ class RandomModel(Model):
     def __init__(self, N):
 
         dataDictionary = json.load(open("mapDictionary.json"))
-        initCar = []
+        self.initCar = []
         self.destino = []
         self.traffic_lights = []
         self.dicSentido = {}
+        self.numAgents = N
+        self.running = True
+        self.totalMovements = 0
+        self.dataCollectorCars = DataCollector(
+            model_reporters={"Total Cars Not In Destination":RandomModel.getCarsNotDestination},
+            agent_reporters={}
+        )
+        self.dataCollectorMovements = DataCollector(
+            model_reporters={"Total Movements Cars":RandomModel.calculateMovements},
+            agent_reporters={}
+        )
+        self.carsInDestination = []
         
         # Se guardan las celdas de las calles que estan junto a cada destino para que
         # los coches puedan entrar cuando lo encuentren.
         self.dicEntrada = {'[3, 22]': [3, 23],
-                           '[21, 22]': [21, 23],
+                           '[21, 22]': [22, 22],
                            '[12, 20]': [13, 20],
                            '[18, 20]': [17, 20],
                            '[3, 19]': [3, 18],
@@ -48,18 +61,20 @@ class RandomModel(Model):
 
         # Una celda semaforo desiganda como contadora puede sensar hasta 8 celdas, debido a que revisa
         # las 3 celdas de ambos carriles de su calle (6) y tambien su propia celda y la de su hermano (2).
-        self.dicSemaforoCalles = {'[0, 13]': [(0, 13),(0, 14),(0, 15),(0, 16),(1, 13),(1, 14),(1, 15),(1, 16)],
+        # Aunque aquellas que sean de un semaforo con prioridad (no cambia de sentido), 
+        # tendran 4 celdas adicionales que sensar, que son las de enfrente suyo.
+        self.dicSemaforoCalles = {'[0, 13]': [(0, 11),(0, 12),(0, 13),(0, 14),(0, 15),(0, 16),(1, 11),(1, 12),(1, 13),(1, 14),(1, 15),(1, 16)],
                                  '[2, 11]': [(2, 11),(3, 11),(4, 11),(5, 11),(2, 12),(3, 12),(4, 12),(5, 12)],
-                                 '[5, 0]': [(2, 0),(3, 0),(4, 0),(5, 0),(2, 1),(3, 1),(4, 1),(5, 1)],
+                                 '[5, 0]': [(2, 0),(3, 0),(4, 0),(5, 0),(6, 0),(7, 0),(2, 1),(3, 1),(4, 1),(5, 1),(6, 1),(7, 1)],
                                  '[7, 2]': [(6, 2),(6, 3),(6, 4),(6, 5),(7, 2),(7, 3),(7, 4),(7, 5)],
                                  '[7, 16]': [(6, 13),(6, 14),(6, 15),(6, 16),(7, 13),(7, 14),(7, 15),(7, 16)],
-                                 '[8, 18]': [(8, 17),(9, 17),(10, 17),(11, 17),(8, 18),(9, 18),(10, 18),(11, 18)],
-                                 '[12, 0]': [(9, 0),(10, 0),(11, 0),(12, 0),(9, 1),(10, 1),(11, 1),(12, 1)],
+                                 '[8, 18]': [(6, 17),(7, 17),(8, 17),(9, 17),(10, 17),(11, 17),(6, 18),(7, 18),(8, 18),(9, 18),(10, 18),(11, 18)],
+                                 '[12, 0]': [(9, 0),(10, 0),(11, 0),(12, 0),(13, 0),(14, 0),(9, 1),(10, 1),(11, 1),(12, 1),(13, 1),(14, 1)],
                                  '[14, 2]': [(13, 2),(13, 3),(13, 4),(13, 5),(14, 2),(14, 3),(14, 4),(14, 5)],
                                  '[16, 22]': [(16, 19),(16, 20),(16, 21),(16, 22),(17, 19),(17, 20),(17, 21),(17, 22)],
-                                 '[18, 24]': [(18, 23),(19, 23),(20, 23),(21, 23),(18, 24),(19, 24),(20, 24),(21, 24)],
+                                 '[18, 24]': [(16, 23),(17, 23),(18, 23),(19, 23),(20, 23),(21, 23),(16, 24),(17, 24),(18, 24),(19, 24),(20, 24),(21, 24)],
                                  '[21, 9]': [(18, 8),(19, 8),(20, 8),(21, 8),(18, 9),(19, 9),(20, 9),(21, 9)],
-                                 '[23, 7]': [(22, 4),(22, 5),(22, 6),(22, 7),(23, 4),(23, 5),(23, 6),(23, 7)]}
+                                 '[23, 7]': [(22, 4),(22, 5),(22, 6),(22, 7),(22, 8),(22, 9),(23, 4),(23, 5),(23, 6),(23, 7),(23, 8),(23, 9)]}
 
         # Se relaciona cada semaforo contador con el agente semaforo que esta a su lado para
         # mantener mismo comportamiento en ambos.
@@ -105,7 +120,7 @@ class RandomModel(Model):
                         agent = Road(f"r_{r*self.width+c}", self,
                                      dataDictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
-                        initCar.append([c, self.height - r - 1])
+                        self.initCar.append([c, self.height - r - 1])
                         key = str([c, self.height - r - 1])
                         self.dicSentido[key] = col
 
@@ -137,20 +152,47 @@ class RandomModel(Model):
 
         # Generar Carros
         for i in range(N):
-            ran = self.random.choice(initCar)
+            posInicial = self.random.choice(self.initCar)
+            self.initCar.remove(posInicial)
             car = Car(i, self)
-            self.grid.place_agent(car, (ran[0], ran[1]))
+            self.grid.place_agent(car, (posInicial[0], posInicial[1]))
             self.schedule.add(car)
             car.destino = self.random.choice(self.destino)
-            self.destino.remove(car.destino)
             car.entrada = self.dicEntrada[str(car.destino)]
             print(f'Destino {car.destino} del carro iniciado en {car.pos}')
             print(f'Entrada {car.entrada} del carro iniciado en {car.pos}')
             print(" ")
 
-        self.num_agents = N
-        self.running = True
+
+    def getCarsNotDestination(model):
+        '''
+        Regresa los coches que no han llegado a su destino en cada step.
+        '''
+        carsReport = [agent.carsNotDestination for agent in model.schedule.agents if agent.tipo == "car"]
+        if len(carsReport) == 0:
+            return 0
+        else:
+            for x in carsReport:
+                return x
+
+    def calculateMovements(self):
+        '''
+        Regresa los movimientos totales que van realizando todos los agentes
+        carro en cada step.
+        '''
+        movementsReport = [agent.movimientos for agent in self.schedule.agents if agent.tipo == "car"]
+        for x in movementsReport:
+            self.totalMovements += x
+        return self.totalMovements
+
 
     def step(self):
         '''Avanza el modelo por un paso.'''
         self.schedule.step()
+        self.dataCollectorCars.collect(self)
+        self.dataCollectorMovements.collect(self)
+        print(f'El numero de coches restantes que no han llegado a su destino es: {self.numAgents}')
+        for x in self.carsInDestination:
+            self.grid.remove_agent(x)
+            self.schedule.remove(x)
+            self.carsInDestination.remove(x)

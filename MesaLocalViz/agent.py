@@ -28,8 +28,9 @@ class Car(Agent):
         self.parado = False
         self.mePuedoMover = True
         self.entrada = None
-        self.NoDestino = True
-        self.NoEntrada = True
+        self.noDestino = True
+        self.noEntrada = True
+        self.movimientos = 0
 
 
     def move(self):
@@ -48,21 +49,24 @@ class Car(Agent):
 
         for e in possibleSteps:
             actualE = list(e)
-            if actualE == self.entrada and self.NoEntrada:
+            if actualE == self.entrada and self.noEntrada:
                 print(f'Coche en: {self.pos}')
                 print(f'Encontraste entrada {actualE} == {self.entrada}')
                 print(" ")
                 self.nexCord = e
-                self.NoEntrada = False
+                self.noEntrada = False
             destinoE = list(e)
             if destinoE == self.destino:
                 print(f'Coche en: {self.pos}')
                 print(f'Encontraste destino {destinoE} == {self.destino}')
                 print(" ")
+                self.model.numAgents -= 1
+                self.model.carsInDestination.append(self)
                 self.nexCord = e
-                self.NoDestino = False
+                self.noDestino = False
 
-        if self.NoDestino and self.NoEntrada:
+
+        if self.noDestino and self.noEntrada:
             for i in possibleSteps:
                 cellmates = self.model.grid.get_cell_list_contents(i)
                 for j in cellmates:
@@ -162,7 +166,7 @@ class Car(Agent):
                                                             dicSentido[str(list
                                                                     (n.pos))]
                                                         val = self.\
-                                                            validarmov(sentido2,
+                                                            validarMov(sentido2,
                                                                     list(n.pos),
                                                                     cord)
                                                         if val:
@@ -184,7 +188,7 @@ class Car(Agent):
                     pow((eDestino[1] - eK[1]), 2))
 
 
-    def validarmov(self, sCasilla: str, objetivo: list, origen: list) -> bool:
+    def validarMov(self, sCasilla: str, objetivo: list, origen: list) -> bool:
         '''
         Determina movimientos correctos, evitando regresar a posiciones para
         no generar ciclos.
@@ -231,7 +235,10 @@ class Car(Agent):
         """
         Representa un paso en el que se movera el carro.
         """
-        self.move()
+        self.carsNotDestination = self.model.numAgents
+        if self.model.numAgents > 0:
+            self.movimientos = 0
+            self.move()
 
 
     def advance(self) -> None:
@@ -252,15 +259,17 @@ class Car(Agent):
 
         if contador == 0:
             self.model.grid.move_agent(self, self.nexCord)
+            self.movimientos += 1
         else:
             ...
             if self.parado:
                 self.mePuedoMover = False
                 ...
             else:
-                if self.unique_id > agente[0].unique_id:
+                if (self.unique_id > agente[0].unique_id):
                     self.parado = False
                     self.model.grid.move_agent(self, self.nexCord)
+                    self.movimientos += 1
                 else:
                     self.parado = True
 
@@ -350,19 +359,20 @@ class Traffic_Light(Agent):
         Representa un paso en donde el semaforo cuenta, le avisa a su hermano
         y compara contrario.
         '''
-        if self.pos in self.listaSemaforoContador:
-            self.cuenta = self.contarCoches()
-            posicion = str(list(self.pos))
-            hermano = self.dicHermano[posicion]
-            agenteHermano = self.model.grid.get_cell_list_contents(hermano)
+        if self.model.numAgents > 0:
+            if self.pos in self.listaSemaforoContador:
+                self.cuenta = self.contarCoches()
+                posicion = str(list(self.pos))
+                hermano = self.dicHermano[posicion]
+                agenteHermano = self.model.grid.get_cell_list_contents(hermano)
 
-            if posicion in self.dicContrario:
-                contrario = self.dicContrario[posicion]
-                agenteContrario = self.model.grid.get_cell_list_contents(contrario)
-                hermanoContrario = self.dicHermano[str(list(agenteContrario[0].pos))]
-                agenteHermanoContrario = self.model.grid.get_cell_list_contents(hermanoContrario)
-                self.compararContrario(agenteContrario[0], agenteHermanoContrario[0])
-                self.avisarHermano(agenteHermano[0])
+                if posicion in self.dicContrario:
+                    contrario = self.dicContrario[posicion]
+                    agenteContrario = self.model.grid.get_cell_list_contents(contrario)
+                    hermanoContrario = self.dicHermano[str(list(agenteContrario[0].pos))]
+                    agenteHermanoContrario = self.model.grid.get_cell_list_contents(hermanoContrario)
+                    self.compararContrario(agenteContrario[0], agenteHermanoContrario[0])
+                    self.avisarHermano(agenteHermano[0])
 
 
 class Destination(Agent):
