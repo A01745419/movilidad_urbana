@@ -211,7 +211,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carro: {fileID: 4791172022301769902, guid: c420a088c7b36f746b9e4d9f4f1c21b8, type: 3}
   semaforoPrefab: {fileID: 434996604811082617, guid: ed2aa890c5bbba04cb7cb72b0dca21d7, type: 3}
-  NAgents: 14
+  NAgents: 10
   width: 10
   height: 10
   pasos: 0
