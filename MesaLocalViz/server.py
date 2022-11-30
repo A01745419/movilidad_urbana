@@ -7,6 +7,7 @@ from agent import *
 from model import RandomModel
 from mesa.visualization.modules import CanvasGrid, BarChartModule
 from mesa.visualization.ModularVisualization import ModularServer
+from mesa.visualization.modules import ChartModule
 
 
 def agent_portrayal(agent):
@@ -58,14 +59,18 @@ height = 0
 
 with open('2022_base.txt') as baseFile:
     lines = baseFile.readlines()
-    width = len(lines[0])-1
+    width = len(lines[0]) - 1
     height = len(lines)
 
-model_params = {"N": 14}
+model_params = {"N": 1}
+
+carsLeftGraph = ChartModule([{"Label": "Total Cars Not In Destination", "Color": "Blue"}], data_collector_name='dataCollectorCars')
+
+movementsGraph = ChartModule([{"Label": "Total Movements Cars", "Color": "Red"}], data_collector_name='dataCollectorMovements')
 
 grid = CanvasGrid(agent_portrayal, width, height, 500, 500)
 
-server = ModularServer(RandomModel, [grid], "Traffic Base", model_params)
+server = ModularServer(RandomModel, [grid, movementsGraph, carsLeftGraph], "Traffic Base", model_params)
 
 server.port = 8521  # The default
 server.launch()
