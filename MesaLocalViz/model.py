@@ -202,6 +202,8 @@ class RandomModel(Model):
         print(f'El numero de coches restantes que no han llegado a su destino es: {self.numAgents}')
         if len(self.carsInDestination) > 0:
             for x in self.carsInDestination:
-                self.grid.remove_agent(x)
-                self.schedule.remove(x)
-                self.carsInDestination.remove(x)
+                if x.pos != None:
+                    print(f'Modelo elimina a {x.pos} porque llego a su destino')
+                    self.grid.remove_agent(x)
+                    self.schedule.remove(x)
+                    self.carsInDestination.remove(x)
