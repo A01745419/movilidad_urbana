@@ -20,7 +20,9 @@ class RandomModel(Model):
     def __init__(self, N):
 
         dataDictionary = json.load(open("mapDictionary.json"))
+        # Posibles posiciones donde pueden iniciar los coches
         self.initCar = []
+        # Posibles destinos de los coches
         self.destino = []
         self.traffic_lights = []
         self.dicSentido = {}
