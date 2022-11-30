@@ -62,7 +62,7 @@ with open('2022_base.txt') as baseFile:
     width = len(lines[0]) - 1
     height = len(lines)
 
-model_params = {"N": 1}
+model_params = {"N": 30}
 
 carsLeftGraph = ChartModule([{"Label": "Total Cars Not In Destination", "Color": "Blue"}], data_collector_name='dataCollectorCars')
 
