@@ -14,30 +14,33 @@ public class AgentData
 {
     public string id;
     public float x, y, z;
+    public bool desaparece;
 
-    public AgentData(string id, float x, float y, float z)
+    public AgentData(string id, float x, float y, float z, bool desaparece)
     {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.desaparece = desaparece;
     }
 }
 
 [Serializable]
 public class SemaforoData
 {
-    public string id;
+    public string id, orientacion;
     public float x, y, z;
     public bool state;
 
-    public SemaforoData(string id, float x, float y, float z, bool state)
+    public SemaforoData(string id, float x, float y, float z, bool state, string orientacion)
     {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
         this.state = state;
+        this.orientacion = orientacion;
     }
 }
 
@@ -73,7 +76,7 @@ public class AgentController : MonoBehaviour
 
     bool updated = false, started = false;
 
-    public GameObject car1, car2, car3,car4, semaforoVerdePrefab, semaforoRojoPrefab;
+    public GameObject car1, car2, car3,car4, semaforoVerdeVerticalPrefab, semaforoRojoVerticalPrefab, semaforoVerdeHorizontalPrefab, semaforoRojoHorizontalPrefab;
     public int NAgents, width, height, pasos;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -196,10 +199,17 @@ public class AgentController : MonoBehaviour
                     }
                     else
                     {
-                        Vector3 currentPosition = new Vector3();
-                        if(currPositions.TryGetValue(agent.id, out currentPosition))
-                            prevPositions[agent.id] = currentPosition;
-                        currPositions[agent.id] = newAgentPosition;
+                        if (agent.desaparece is true){
+                            Destroy(agents[agent.id]);
+                            prevPositions.Remove(agent.id);
+                            currPositions.Remove(agent.id);
+                        }
+                        else{
+                            Vector3 currentPosition = new Vector3();
+                            if(currPositions.TryGetValue(agent.id, out currentPosition))
+                                prevPositions[agent.id] = currentPosition;
+                                currPositions[agent.id] = newAgentPosition;
+                        }
                     }
             }
         }
@@ -223,10 +233,18 @@ public class AgentController : MonoBehaviour
             {
                     if(!started)
                     {
-                        semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdePrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
-                        Debug.Log(semaforosInstVerde[semaforo.id]);
-                        semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - 1), Quaternion.identity);
-                        Debug.Log(semaforosInstRojo[semaforo.id]);
+                        if (semaforo.orientacion == "vertical"){
+                            semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdeVerticalPrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
+                            Debug.Log(semaforosInstVerde[semaforo.id]);
+                            semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoVerticalPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - 1), Quaternion.identity);
+                            Debug.Log(semaforosInstRojo[semaforo.id]);
+                        }
+                        else{
+                            semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdeHorizontalPrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
+                            Debug.Log(semaforosInstVerde[semaforo.id]);
+                            semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoHorizontalPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - 1), Quaternion.identity);
+                            Debug.Log(semaforosInstRojo[semaforo.id]);
+                        }
                 }
                     else
                     {

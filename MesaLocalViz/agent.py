@@ -98,6 +98,11 @@ class Traffic_Light(Agent):
         self.state = state
         self.timeToChange = timeToChange
         self.tipo = "semaforo"
+        self.cord = (self.pos)
+        self.orientacion = "vertical"
+        if self.cord == "s":
+            self.orientacion = "horiontal"
+        print(self.orientacion)
 
     def step(self):
         """

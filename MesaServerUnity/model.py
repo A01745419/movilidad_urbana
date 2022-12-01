@@ -134,12 +134,28 @@ class RandomModel(Model):
                         self.dicSentido[key] = col
 
                     # Genera los agentes SEMAFORO
-                    elif col in ["S", "s"]:
+                    elif col == "s":
                         agent = Traffic_Light(f"tl_{r*self.width+c}",
                                               self,
                                               False if col == "S"
                                               else True,
                                               int(dataDictionary[col]))
+                        agent.orientacion = "horizontal"
+                        self.grid.place_agent(agent, (c, self.height - r - 1))
+                        self.schedule.add(agent)
+                        agent.listaSemaforoContador = self.listaSemaforoContador
+                        agent.dicCalles = self.dicSemaforoCalles
+                        agent.dicPrioritario = self.dicSemaforoPrioritario
+                        agent.dicHermano = self.dicSemaforoHermano
+                        agent.dicContrario = self.dicSemaforoContrario
+                        self.traffic_lights.append(agent)
+                    elif col == "S":
+                        agent = Traffic_Light(f"tl_{r*self.width+c}",
+                                              self,
+                                              False if col == "S"
+                                              else True,
+                                              int(dataDictionary[col]))
+                        agent.orientacion = "vertical"
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.schedule.add(agent)
                         agent.listaSemaforoContador = self.listaSemaforoContador
@@ -198,10 +214,6 @@ class RandomModel(Model):
 
     def step(self):
         '''Avanza el modelo por un paso.'''
-        self.schedule.step()
-        self.dataCollectorCars.collect(self)
-        self.dataCollectorMovements.collect(self)
-        print(f'El numero de coches restantes que no han llegado a su destino es: {self.numAgents}')
         if len(self.carsInDestination) > 0:
             for x in self.carsInDestination:
                 if x.pos != None:
@@ -209,3 +221,7 @@ class RandomModel(Model):
                     self.grid.remove_agent(x)
                     self.schedule.remove(x)
                     self.carsInDestination.remove(x)
+        self.schedule.step()
+        self.dataCollectorCars.collect(self)
+        self.dataCollectorMovements.collect(self)
+        print(f'El numero de coches restantes que no han llegado a su destino es: {self.numAgents}')

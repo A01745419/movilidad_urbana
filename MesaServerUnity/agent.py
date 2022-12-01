@@ -31,6 +31,7 @@ class Car(Agent):
         self.noDestino = True
         self.noEntrada = True
         self.movimientos = 0
+        self.desaparece = False
 
 
     def move(self):
@@ -61,6 +62,7 @@ class Car(Agent):
                 print(f'Encontraste destino {destinoE} == {self.destino}')
                 print(" ")
                 self.model.numAgents -= 1
+                self.desaparece = True
                 self.model.carsInDestination.append(self)
                 self.nexCord = e
                 self.noDestino = False
@@ -298,6 +300,7 @@ class Traffic_Light(Agent):
         self.dicContrario = None
         self.cuentaPrioritario = 0
         self.cuenta = 0
+        self.orientacion = None
 
 
     def avisarHermano(self, agenteHermano):
