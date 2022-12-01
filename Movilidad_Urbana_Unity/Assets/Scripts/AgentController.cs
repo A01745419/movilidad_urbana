@@ -68,29 +68,33 @@ public class AgentController : MonoBehaviour
     string updateEndpoint = "/update";
     AgentsData agentsData;
     SemaforosData semaforosData;
-    Dictionary<string, GameObject> agents, semaforosInst;
+    Dictionary<string, GameObject> agents, semaforosInstVerde, semaforosInstRojo;
     Dictionary<string, Vector3> prevPositions, currPositions;
 
     bool updated = false, started = false;
 
-    public GameObject carro, semaforoPrefab;
+    public GameObject car1, car2, car3,car4, semaforoVerdePrefab, semaforoRojoPrefab;
     public int NAgents, width, height, pasos;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
 
+    List<GameObject> cars;
+
     void Start()
     {
+        cars = new List<GameObject> { car1, car2, car3, car4};
+
         agentsData = new AgentsData();
         semaforosData = new SemaforosData();
         prevPositions = new Dictionary<string, Vector3>();
         currPositions = new Dictionary<string, Vector3>();
-
         agents = new Dictionary<string, GameObject>();
-        semaforosInst = new Dictionary<string, GameObject>();
+        semaforosInstVerde = new Dictionary<string, GameObject>();
+        semaforosInstRojo = new Dictionary<string, GameObject>();
 
         //floor.transform.localScale = new Vector3((float)width/10, 1, (float)height/10);
         //floor.transform.localPosition = new Vector3((float)width/2-0.5f, 0, (float)height/2-0.5f);
-        
+
         timer = timeToUpdate;
 
         StartCoroutine(SendConfiguration());
@@ -186,7 +190,9 @@ public class AgentController : MonoBehaviour
                     if(!started)
                     {
                         prevPositions[agent.id] = newAgentPosition;
-                        agents[agent.id] = Instantiate(carro, newAgentPosition, Quaternion.identity);
+                        System.Random rnd = new System.Random();
+                        int randIndex = rnd.Next(cars.Count);
+                        agents[agent.id] = Instantiate(cars[randIndex], newAgentPosition, Quaternion.identity);
                     }
                     else
                     {
@@ -217,18 +223,24 @@ public class AgentController : MonoBehaviour
             {
                     if(!started)
                     {
-                        semaforosInst[semaforo.id] = Instantiate(semaforoPrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
-                        Debug.Log(semaforosInst[semaforo.id]);
-                    }
+                        semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdePrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
+                        Debug.Log(semaforosInstVerde[semaforo.id]);
+                        semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - 1), Quaternion.identity);
+                        Debug.Log(semaforosInstRojo[semaforo.id]);
+                }
                     else
                     {
                         if (semaforo.state is false){
-                            semaforosInst[semaforo.id].SetActive(false);
-                        }
-                        else{
-                            semaforosInst[semaforo.id].SetActive(true);
-                        }
+                            semaforosInstVerde[semaforo.id].SetActive(false);
+                            semaforosInstRojo[semaforo.id].SetActive(true);
                     }
+                    else
+                    {
+                            semaforosInstVerde[semaforo.id].SetActive(true);
+                            semaforosInstRojo[semaforo.id].SetActive(false);
+
+                    }
+                }
             }
             updated = true;
             if(!started) started = true;

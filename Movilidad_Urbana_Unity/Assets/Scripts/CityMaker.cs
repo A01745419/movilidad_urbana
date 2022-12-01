@@ -16,8 +16,10 @@ public class CityMaker : MonoBehaviour
     [SerializeField] GameObject estadioPrefab;
     [SerializeField] GameObject grassPrefab;
     [SerializeField] GameObject treePrefab;
+    [SerializeField] GameObject semaphorePrefab;
+
     //[SerializeField] GameObject semaphorePrefab;
-   
+
 
     [SerializeField] int tileSize;
 
@@ -71,24 +73,24 @@ public class CityMaker : MonoBehaviour
                 //tile.transform.parent = transform;
                 x += 1;
             }
-            //else if (tiles[i] == 's')
-            //{
-            //    position = new Vector3(x * tileSize, 0, y * tileSize);
-            //    tile = Instantiate(roadPrefab, position, Quaternion.identity);
-            //    tile.transform.parent = transform;
-            //    tile = Instantiate(semaphorePrefab, position, Quaternion.identity);
-            //    tile.transform.parent = transform;
-            //    x += 1;
-            //}
-            //else if (tiles[i] == 'S')
-            //{
-            //    position = new Vector3(x * tileSize, 0, y * tileSize);
-            //    tile = Instantiate(roadPrefab, position, Quaternion.Euler(0, 90, 0));
-            //    tile.transform.parent = transform;
-            //    tile = Instantiate(semaphorePrefab, position, Quaternion.Euler(0, 90, 0));
-            //    tile.transform.parent = transform;
-            //    x += 1;
-            //}
+            else if (tiles[i] == 's')
+            {
+                position = new Vector3(x * tileSize, 0, y * tileSize);
+                tile = Instantiate(roadPrefab, position, Quaternion.identity);
+                tile.transform.parent = transform;
+                tile = Instantiate(semaphorePrefab, position, Quaternion.identity);
+                tile.transform.parent = transform;
+                x += 1;
+            }
+            else if (tiles[i] == 'S')
+            {
+                position = new Vector3(x * tileSize, 0, y * tileSize);
+                tile = Instantiate(roadPrefab, position, Quaternion.Euler(0, 90, 0));
+                tile.transform.parent = transform;
+                tile = Instantiate(semaphorePrefab, position, Quaternion.Euler(0, 90, 0));
+                tile.transform.parent = transform;
+                x += 1;
+            }
             else if (tiles[i] == 'D')
             {
                 position = new Vector3(x * tileSize, 0, y * tileSize);

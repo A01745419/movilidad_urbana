@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028334, g: 0.22571328, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -164,6 +164,7 @@ MonoBehaviour:
   estadioPrefab: {fileID: 2026877671584840941, guid: 744b29e450bb81a468c6fad0fad3adb3, type: 3}
   grassPrefab: {fileID: 8785848941611522256, guid: 77c622efaec2da44f9e03b816366cc40, type: 3}
   treePrefab: {fileID: 3254415805699086842, guid: 64b47369bfd3f2c4cbf424108944de81, type: 3}
+  semaphorePrefab: {fileID: 434996604811082617, guid: ed2aa890c5bbba04cb7cb72b0dca21d7, type: 3}
   tileSize: 1
 --- !u!4 &166395711
 Transform:
@@ -209,9 +210,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4e9d422d4e1acb49bc0ca55ab1cc4b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carro: {fileID: 4791172022301769902, guid: c420a088c7b36f746b9e4d9f4f1c21b8, type: 3}
-  semaforoPrefab: {fileID: 434996604811082617, guid: ed2aa890c5bbba04cb7cb72b0dca21d7, type: 3}
-  NAgents: 10
+  car1: {fileID: 4791172022301769902, guid: c420a088c7b36f746b9e4d9f4f1c21b8, type: 3}
+  car2: {fileID: 9194681338607245221, guid: 26e88871b4dfd4b489f0d1262cf3d231, type: 3}
+  car3: {fileID: 3948770806681584122, guid: da5af7d6dc17ea646a4251daf787360c, type: 3}
+  car4: {fileID: 961796953397469431, guid: 5033e1685b0e6f44791ff759c37f5ec5, type: 3}
+  semaforoVerdePrefab: {fileID: 434996604811082617, guid: ed2aa890c5bbba04cb7cb72b0dca21d7, type: 3}
+  semaforoRojoPrefab: {fileID: 434996604811082617, guid: 4dd51da59f481084f81675cbfa78baee, type: 3}
+  NAgents: 30
   width: 10
   height: 10
   pasos: 0
