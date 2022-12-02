@@ -1,5 +1,5 @@
 # movilidad_urbana
-Proyecto de multiagentes con IBM.
+Proyecto de multiagentes 5to semestre ITC Tec CEM.
 
 # Autores
 #### José Luis Madrigal Sánchez
