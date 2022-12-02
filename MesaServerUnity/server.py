@@ -38,7 +38,7 @@ def getAgents():
     global randomModel
 
     if request.method == 'GET':
-        agentPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Car)]
+        agentPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z, "desaparece": bool(agent.desaparece)} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Car)]
 
         return jsonify({'positions':agentPositions})
 @app.route('/getSemaforos', methods=['GET'])
@@ -46,7 +46,7 @@ def getTrafficLight():
     global randomModel
 
     if request.method == 'GET':
-        semaforosPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z, "state": bool(agent.state)} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Traffic_Light)]
+        semaforosPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z, "state": bool(agent.state), "orientacion": agent.orientacion} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, Traffic_Light)]
 
         return jsonify({'positions':semaforosPositions})
 

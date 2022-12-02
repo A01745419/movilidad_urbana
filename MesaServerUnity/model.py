@@ -8,6 +8,7 @@ from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid
 from agent import *
 import json
+from mesa.datacollection import DataCollector
 
 
 class RandomModel(Model):
@@ -19,15 +20,29 @@ class RandomModel(Model):
     def __init__(self, N):
 
         dataDictionary = json.load(open("mapDictionary.json"))
-        initCar = []
+        # Posibles posiciones donde pueden iniciar los coches
+        self.initCar = []
+        # Posibles destinos de los coches
         self.destino = []
         self.traffic_lights = []
         self.dicSentido = {}
+        self.numAgents = N
+        self.running = True
+        self.totalMovements = 0
+        self.dataCollectorCars = DataCollector(
+            model_reporters={"Total Cars Not In Destination":RandomModel.getCarsNotDestination},
+            agent_reporters={}
+        )
+        self.dataCollectorMovements = DataCollector(
+            model_reporters={"Total Movements Cars":RandomModel.calculateMovements},
+            agent_reporters={}
+        )
+        self.carsInDestination = []
         
         # Se guardan las celdas de las calles que estan junto a cada destino para que
         # los coches puedan entrar cuando lo encuentren.
         self.dicEntrada = {'[3, 22]': [3, 23],
-                           '[21, 22]': [21, 23],
+                           '[21, 22]': [22, 22],
                            '[12, 20]': [13, 20],
                            '[18, 20]': [17, 20],
                            '[3, 19]': [3, 18],
@@ -60,6 +75,15 @@ class RandomModel(Model):
                                  '[18, 24]': [(18, 23),(19, 23),(20, 23),(21, 23),(18, 24),(19, 24),(20, 24),(21, 24)],
                                  '[21, 9]': [(18, 8),(19, 8),(20, 8),(21, 8),(18, 9),(19, 9),(20, 9),(21, 9)],
                                  '[23, 7]': [(22, 4),(22, 5),(22, 6),(22, 7),(23, 4),(23, 5),(23, 6),(23, 7)]}
+
+        # Se guardan las celdas de al frente de semaforos prioritarios para evitar choques despues de
+        # comparar celdas de calles con contrario (mantiene prioridad hasta que no haya nadie en interseccion)
+        self.dicSemaforoPrioritario = {'[0, 13]': [(0, 12),(1, 12)],
+                                       '[5, 0]': [(6, 0),(6, 1)],
+                                       '[8, 18]': [(7, 17),(7, 18)],
+                                       '[12, 0]': [(13, 0),(13, 1)],
+                                       '[18, 24]': [(17, 23),(17, 24)],
+                                       '[23, 7]': [(22, 8),(23, 8)]}
 
         # Se relaciona cada semaforo contador con el agente semaforo que esta a su lado para
         # mantener mismo comportamiento en ambos.
@@ -105,21 +129,38 @@ class RandomModel(Model):
                         agent = Road(f"r_{r*self.width+c}", self,
                                      dataDictionary[col])
                         self.grid.place_agent(agent, (c, self.height - r - 1))
-                        initCar.append([c, self.height - r - 1])
+                        self.initCar.append([c, self.height - r - 1])
                         key = str([c, self.height - r - 1])
                         self.dicSentido[key] = col
 
                     # Genera los agentes SEMAFORO
-                    elif col in ["S", "s"]:
+                    elif col == "s":
                         agent = Traffic_Light(f"tl_{r*self.width+c}",
                                               self,
                                               False if col == "S"
                                               else True,
                                               int(dataDictionary[col]))
+                        agent.orientacion = "vertical"
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.schedule.add(agent)
                         agent.listaSemaforoContador = self.listaSemaforoContador
                         agent.dicCalles = self.dicSemaforoCalles
+                        agent.dicPrioritario = self.dicSemaforoPrioritario
+                        agent.dicHermano = self.dicSemaforoHermano
+                        agent.dicContrario = self.dicSemaforoContrario
+                        self.traffic_lights.append(agent)
+                    elif col == "S":
+                        agent = Traffic_Light(f"tl_{r*self.width+c}",
+                                              self,
+                                              False if col == "S"
+                                              else True,
+                                              int(dataDictionary[col]))
+                        agent.orientacion = "horizontal"
+                        self.grid.place_agent(agent, (c, self.height - r - 1))
+                        self.schedule.add(agent)
+                        agent.listaSemaforoContador = self.listaSemaforoContador
+                        agent.dicCalles = self.dicSemaforoCalles
+                        agent.dicPrioritario = self.dicSemaforoPrioritario
                         agent.dicHermano = self.dicSemaforoHermano
                         agent.dicContrario = self.dicSemaforoContrario
                         self.traffic_lights.append(agent)
@@ -137,20 +178,50 @@ class RandomModel(Model):
 
         # Generar Carros
         for i in range(N):
-            ran = self.random.choice(initCar)
+            posInicial = self.random.choice(self.initCar)
+            self.initCar.remove(posInicial)
             car = Car(i, self)
-            self.grid.place_agent(car, (ran[0], ran[1]))
+            self.grid.place_agent(car, (posInicial[0], posInicial[1]))
             self.schedule.add(car)
             car.destino = self.random.choice(self.destino)
-            self.destino.remove(car.destino)
             car.entrada = self.dicEntrada[str(car.destino)]
             print(f'Destino {car.destino} del carro iniciado en {car.pos}')
             print(f'Entrada {car.entrada} del carro iniciado en {car.pos}')
             print(" ")
 
-        self.num_agents = N
-        self.running = True
+
+    def getCarsNotDestination(model):
+        '''
+        Regresa los coches que no han llegado a su destino en cada step.
+        '''
+        carsReport = [agent.carsNotDestination for agent in model.schedule.agents if agent.tipo == "car"]
+        if len(carsReport) == 0:
+            return 0
+        else:
+            for x in carsReport:
+                return x
+
+    def calculateMovements(self):
+        '''
+        Regresa los movimientos totales que van realizando todos los agentes
+        carro en cada step.
+        '''
+        movementsReport = [agent.movimientos for agent in self.schedule.agents if agent.tipo == "car"]
+        for x in movementsReport:
+            self.totalMovements += x
+        return self.totalMovements
+
 
     def step(self):
         '''Avanza el modelo por un paso.'''
+        if len(self.carsInDestination) > 0:
+            for x in self.carsInDestination:
+                if x.pos != None:
+                    print(f'Modelo elimina a {x.pos} porque llego a su destino')
+                    self.grid.remove_agent(x)
+                    self.schedule.remove(x)
+                    self.carsInDestination.remove(x)
         self.schedule.step()
+        self.dataCollectorCars.collect(self)
+        self.dataCollectorMovements.collect(self)
+        print(f'El numero de coches restantes que no han llegado a su destino es: {self.numAgents}')
