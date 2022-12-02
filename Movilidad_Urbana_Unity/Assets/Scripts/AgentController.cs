@@ -76,7 +76,7 @@ public class AgentController : MonoBehaviour
 
     bool updated = false, started = false;
 
-    public GameObject car1, car2, car3,car4, semaforoVerdeVerticalPrefab, semaforoRojoVerticalPrefab, semaforoVerdeHorizontalPrefab, semaforoRojoHorizontalPrefab;
+    public GameObject car1, car2, car3,car4, semaforoVerdePrefab, semaforoRojoPrefab;
     public int NAgents, width, height, pasos;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -234,17 +234,17 @@ public class AgentController : MonoBehaviour
                     if(!started)
                     {
                         if (semaforo.orientacion == "vertical"){
-                            semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdeVerticalPrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
+                            semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdePrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - (float).5), Quaternion.identity);
                             Debug.Log(semaforosInstVerde[semaforo.id]);
-                            semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoVerticalPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - 1), Quaternion.identity);
+                            semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - (float).5), Quaternion.identity);
                             Debug.Log(semaforosInstRojo[semaforo.id]);
                         }
                         else{
-                            semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdeHorizontalPrefab, new Vector3(semaforo.x, semaforo.y -1, semaforo.z - 1), Quaternion.identity);
-                            Debug.Log(semaforosInstVerde[semaforo.id]);
-                            semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoHorizontalPrefab, new Vector3(semaforo.x, semaforo.y - 1, semaforo.z - 1), Quaternion.identity);
-                            Debug.Log(semaforosInstRojo[semaforo.id]);
-                        }
+                        semaforosInstVerde[semaforo.id] = Instantiate(semaforoVerdePrefab, new Vector3(semaforo.x + (float).5, semaforo.y - 1, semaforo.z - (float)1.5), Quaternion.Euler(0, 90, 0));
+                        Debug.Log(semaforosInstVerde[semaforo.id]);
+                        semaforosInstRojo[semaforo.id] = Instantiate(semaforoRojoPrefab, new Vector3(semaforo.x + (float).5, semaforo.y - 1, semaforo.z - (float)1.5), Quaternion.Euler(0, 90, 0));
+                        Debug.Log(semaforosInstRojo[semaforo.id]);
+                    }
                 }
                     else
                     {

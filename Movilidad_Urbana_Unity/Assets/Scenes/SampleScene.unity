@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -214,11 +214,9 @@ MonoBehaviour:
   car2: {fileID: 9194681338607245221, guid: 26e88871b4dfd4b489f0d1262cf3d231, type: 3}
   car3: {fileID: 3948770806681584122, guid: da5af7d6dc17ea646a4251daf787360c, type: 3}
   car4: {fileID: 961796953397469431, guid: 5033e1685b0e6f44791ff759c37f5ec5, type: 3}
-  semaforoVerdeVerticalPrefab: {fileID: 434996604811082617, guid: ed2aa890c5bbba04cb7cb72b0dca21d7, type: 3}
-  semaforoRojoVerticalPrefab: {fileID: 434996604811082617, guid: 4dd51da59f481084f81675cbfa78baee, type: 3}
-  semaforoVerdeHorizontalPrefab: {fileID: 3254415805699086842, guid: 64b47369bfd3f2c4cbf424108944de81, type: 3}
-  semaforoRojoHorizontalPrefab: {fileID: 3254415805699086842, guid: 64b47369bfd3f2c4cbf424108944de81, type: 3}
-  NAgents: 20
+  semaforoVerdePrefab: {fileID: 434996604811082617, guid: ed2aa890c5bbba04cb7cb72b0dca21d7, type: 3}
+  semaforoRojoPrefab: {fileID: 434996604811082617, guid: 4dd51da59f481084f81675cbfa78baee, type: 3}
+  NAgents: 30
   width: 10
   height: 10
   pasos: 0

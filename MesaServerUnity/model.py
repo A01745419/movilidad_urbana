@@ -140,7 +140,7 @@ class RandomModel(Model):
                                               False if col == "S"
                                               else True,
                                               int(dataDictionary[col]))
-                        agent.orientacion = "horizontal"
+                        agent.orientacion = "vertical"
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.schedule.add(agent)
                         agent.listaSemaforoContador = self.listaSemaforoContador
@@ -155,7 +155,7 @@ class RandomModel(Model):
                                               False if col == "S"
                                               else True,
                                               int(dataDictionary[col]))
-                        agent.orientacion = "vertical"
+                        agent.orientacion = "horizontal"
                         self.grid.place_agent(agent, (c, self.height - r - 1))
                         self.schedule.add(agent)
                         agent.listaSemaforoContador = self.listaSemaforoContador
